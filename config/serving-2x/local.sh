@@ -6,3 +6,5 @@ WORKER=user@<addr>
 MODEL_ID=local/apex-flash-1-EXL3-4bpw-mcg
 MODEL_REVISION=local-20261108
 SERVED_NAME=apex-flash-1-2x
+# Vision off: apex ships its own chat template, whose media markers TensorFold cannot extend (first start 2026-11-08 stopped on it).
+VISION=0

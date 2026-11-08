@@ -1,0 +1,423 @@
+
+
+  Mia's TensorFold Start Script
+  local/apex-flash-1-EXL3-4bpw-mcg · 2 x DGX Spark · 4 at once · 1048576-token window · fp8 KV · dflash2 drafts · port 8888
+
+[1/5] Setup: image and checkpoint on both Sparks
+[start.sh] Not ready yet: running scripts/prepare.sh (the first time this pulls the image, downloads ~166 GiB and copies both to the worker)
+[prepare.sh] Preflight checks on both Sparks
+[prepare.sh] Rail roceP2p1s0f0 <-> roceP2p1s0f0: <addr> <-> <addr> reaches the peer (MTU 1500): used
+[prepare.sh] Link: head <addr> (<netdev>, rocep1s0f0, GID 5) <-> worker <addr> (<netdev>, rocep1s0f0, GID 5)
+[prepare.sh] Disk: 2466 GB free under /home/user/.cache/huggingface here, 2009 GB under /home/user/.cache/huggingface on the worker
+[prepare.sh] Pulling the prebuilt image ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:bc34d7d63f978cf601f42863b284bc95a567c50c10e9adb0866a635be568bf5f (PULL=0 builds instead)
+ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:bc34d7d63f978cf601f42863b284bc95a567c50c10e9adb0866a635be568bf5f: Pulling from miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold
+c772ddc80b61: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+b0bd208fb06a: Pulling fs layer
+0ecb6de639ce: Pulling fs layer
+9f5a51a63d2c: Pulling fs layer
+fefff4bbbabd: Pulling fs layer
+61ee9db593ea: Pulling fs layer
+4447a17025d9: Pulling fs layer
+9afa6703f2c2: Pulling fs layer
+f0ad8f472901: Pulling fs layer
+34be791b8780: Pulling fs layer
+1dc62458ad02: Pulling fs layer
+3dfa91366c34: Pulling fs layer
+6af4f0233830: Pulling fs layer
+043fb6406ac9: Pulling fs layer
+e545e0799b9f: Pulling fs layer
+0f4a9e6431b7: Pulling fs layer
+31124fc0d3c2: Pulling fs layer
+7b1219d3bec1: Pulling fs layer
+1e84aff5f694: Pulling fs layer
+44ba327b5f8a: Pulling fs layer
+72df078234af: Pulling fs layer
+4905e5367aae: Pulling fs layer
+69a763e1165e: Pulling fs layer
+61ee9db593ea: Waiting
+4447a17025d9: Waiting
+9afa6703f2c2: Waiting
+d2f4a9064b95: Pulling fs layer
+f0ad8f472901: Waiting
+e6b6a925ccae: Pulling fs layer
+331aca653406: Pulling fs layer
+34be791b8780: Waiting
+1dc62458ad02: Waiting
+3dfa91366c34: Waiting
+6af4f0233830: Waiting
+043fb6406ac9: Waiting
+645cdaf8d947: Pulling fs layer
+e545e0799b9f: Waiting
+c1883178a8c3: Pulling fs layer
+0f4a9e6431b7: Waiting
+512a808022ef: Pulling fs layer
+a7aab27a09ec: Pulling fs layer
+5975c64a294c: Pulling fs layer
+4e82c8a39c97: Pulling fs layer
+410058a2fbc3: Pulling fs layer
+0ecb6de639ce: Waiting
+9f5a51a63d2c: Waiting
+fefff4bbbabd: Waiting
+4905e5367aae: Waiting
+69a763e1165e: Waiting
+d2f4a9064b95: Waiting
+1e9bb08bd607: Pulling fs layer
+645cdaf8d947: Waiting
+20672cc2b92c: Pulling fs layer
+e45fef730e42: Pulling fs layer
+e6b6a925ccae: Waiting
+331aca653406: Waiting
+31124fc0d3c2: Waiting
+c1883178a8c3: Waiting
+7b1219d3bec1: Waiting
+1d8889397be9: Pulling fs layer
+512a808022ef: Waiting
+f95e18f362f1: Pulling fs layer
+1e84aff5f694: Waiting
+a7aab27a09ec: Waiting
+5975c64a294c: Waiting
+e45fef730e42: Waiting
+44ba327b5f8a: Waiting
+4e82c8a39c97: Waiting
+1d8889397be9: Waiting
+410058a2fbc3: Waiting
+1e9bb08bd607: Waiting
+f95e18f362f1: Waiting
+72df078234af: Waiting
+5748398cf797: Pulling fs layer
+5add1e4bcb79: Pulling fs layer
+7f8640f7cd7b: Pulling fs layer
+dd2c3573bfa7: Pulling fs layer
+ec60c1632083: Pulling fs layer
+cfc35d1c232e: Pulling fs layer
+efb1f9c37d01: Pulling fs layer
+f2f796b3ac16: Pulling fs layer
+84a5b2df3662: Pulling fs layer
+5add1e4bcb79: Waiting
+01ae8d35a85a: Pulling fs layer
+5748398cf797: Waiting
+5f61d4772303: Pulling fs layer
+7f8640f7cd7b: Waiting
+02280d2b62f0: Pulling fs layer
+ec60c1632083: Waiting
+efb1f9c37d01: Waiting
+ca1255d1f22e: Pulling fs layer
+cfc35d1c232e: Waiting
+f2f796b3ac16: Waiting
+046d871a74c0: Pulling fs layer
+e6acad95a350: Pulling fs layer
+4b63e124dec7: Pulling fs layer
+84a5b2df3662: Waiting
+01ae8d35a85a: Waiting
+dd2c3573bfa7: Waiting
+02280d2b62f0: Waiting
+ca1255d1f22e: Waiting
+e6acad95a350: Waiting
+046d871a74c0: Waiting
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+b0bd208fb06a: Verifying Checksum
+b0bd208fb06a: Download complete
+c772ddc80b61: Verifying Checksum
+c772ddc80b61: Download complete
+0ecb6de639ce: Verifying Checksum
+0ecb6de639ce: Download complete
+61ee9db593ea: Verifying Checksum
+61ee9db593ea: Download complete
+4447a17025d9: Download complete
+9afa6703f2c2: Download complete
+c772ddc80b61: Pull complete
+4f4fb700ef54: Pull complete
+b0bd208fb06a: Pull complete
+0ecb6de639ce: Pull complete
+fefff4bbbabd: Verifying Checksum
+fefff4bbbabd: Download complete
+34be791b8780: Verifying Checksum
+34be791b8780: Download complete
+1dc62458ad02: Verifying Checksum
+1dc62458ad02: Download complete
+3dfa91366c34: Verifying Checksum
+3dfa91366c34: Download complete
+6af4f0233830: Verifying Checksum
+6af4f0233830: Download complete
+f0ad8f472901: Verifying Checksum
+f0ad8f472901: Download complete
+043fb6406ac9: Verifying Checksum
+043fb6406ac9: Download complete
+9f5a51a63d2c: Verifying Checksum
+9f5a51a63d2c: Download complete
+e545e0799b9f: Verifying Checksum
+e545e0799b9f: Download complete
+9f5a51a63d2c: Pull complete
+31124fc0d3c2: Verifying Checksum
+31124fc0d3c2: Download complete
+1e84aff5f694: Verifying Checksum
+1e84aff5f694: Download complete
+fefff4bbbabd: Pull complete
+61ee9db593ea: Pull complete
+4447a17025d9: Pull complete
+44ba327b5f8a: Verifying Checksum
+44ba327b5f8a: Download complete
+9afa6703f2c2: Pull complete
+f0ad8f472901: Pull complete
+34be791b8780: Pull complete
+1dc62458ad02: Pull complete
+3dfa91366c34: Pull complete
+6af4f0233830: Pull complete
+043fb6406ac9: Pull complete
+e545e0799b9f: Pull complete
+72df078234af: Verifying Checksum
+72df078234af: Download complete
+4905e5367aae: Verifying Checksum
+4905e5367aae: Download complete
+69a763e1165e: Download complete
+d2f4a9064b95: Verifying Checksum
+d2f4a9064b95: Download complete
+e6b6a925ccae: Verifying Checksum
+e6b6a925ccae: Download complete
+331aca653406: Verifying Checksum
+331aca653406: Download complete
+645cdaf8d947: Verifying Checksum
+645cdaf8d947: Download complete
+c1883178a8c3: Verifying Checksum
+c1883178a8c3: Download complete
+0f4a9e6431b7: Verifying Checksum
+0f4a9e6431b7: Download complete
+a7aab27a09ec: Verifying Checksum
+a7aab27a09ec: Download complete
+512a808022ef: Verifying Checksum
+512a808022ef: Download complete
+4e82c8a39c97: Verifying Checksum
+4e82c8a39c97: Download complete
+7b1219d3bec1: Verifying Checksum
+7b1219d3bec1: Download complete
+410058a2fbc3: Verifying Checksum
+410058a2fbc3: Download complete
+1e9bb08bd607: Verifying Checksum
+1e9bb08bd607: Download complete
+e45fef730e42: Verifying Checksum
+e45fef730e42: Download complete
+20672cc2b92c: Verifying Checksum
+20672cc2b92c: Download complete
+f95e18f362f1: Download complete
+5748398cf797: Verifying Checksum
+5748398cf797: Download complete
+5add1e4bcb79: Download complete
+7f8640f7cd7b: Verifying Checksum
+7f8640f7cd7b: Download complete
+dd2c3573bfa7: Verifying Checksum
+dd2c3573bfa7: Download complete
+ec60c1632083: Verifying Checksum
+ec60c1632083: Download complete
+cfc35d1c232e: Verifying Checksum
+cfc35d1c232e: Download complete
+1d8889397be9: Verifying Checksum
+1d8889397be9: Download complete
+efb1f9c37d01: Verifying Checksum
+efb1f9c37d01: Download complete
+5975c64a294c: Verifying Checksum
+5975c64a294c: Download complete
+84a5b2df3662: Verifying Checksum
+84a5b2df3662: Download complete
+5f61d4772303: Verifying Checksum
+5f61d4772303: Download complete
+02280d2b62f0: Verifying Checksum
+02280d2b62f0: Download complete
+ca1255d1f22e: Verifying Checksum
+ca1255d1f22e: Download complete
+046d871a74c0: Verifying Checksum
+046d871a74c0: Download complete
+4b63e124dec7: Download complete
+0f4a9e6431b7: Pull complete
+01ae8d35a85a: Verifying Checksum
+01ae8d35a85a: Download complete
+f2f796b3ac16: Verifying Checksum
+f2f796b3ac16: Download complete
+31124fc0d3c2: Pull complete
+7b1219d3bec1: Pull complete
+1e84aff5f694: Pull complete
+44ba327b5f8a: Pull complete
+72df078234af: Pull complete
+4905e5367aae: Pull complete
+69a763e1165e: Pull complete
+d2f4a9064b95: Pull complete
+e6b6a925ccae: Pull complete
+331aca653406: Pull complete
+645cdaf8d947: Pull complete
+c1883178a8c3: Pull complete
+512a808022ef: Pull complete
+a7aab27a09ec: Pull complete
+5975c64a294c: Pull complete
+4e82c8a39c97: Pull complete
+410058a2fbc3: Pull complete
+1e9bb08bd607: Pull complete
+20672cc2b92c: Pull complete
+e45fef730e42: Pull complete
+1d8889397be9: Pull complete
+f95e18f362f1: Pull complete
+5748398cf797: Pull complete
+5add1e4bcb79: Pull complete
+7f8640f7cd7b: Pull complete
+dd2c3573bfa7: Pull complete
+ec60c1632083: Pull complete
+cfc35d1c232e: Pull complete
+efb1f9c37d01: Pull complete
+f2f796b3ac16: Pull complete
+84a5b2df3662: Pull complete
+01ae8d35a85a: Pull complete
+5f61d4772303: Pull complete
+02280d2b62f0: Pull complete
+ca1255d1f22e: Pull complete
+046d871a74c0: Pull complete
+e6acad95a350: Pull complete
+4b63e124dec7: Pull complete
+Digest: sha256:bc34d7d63f978cf601f42863b284bc95a567c50c10e9adb0866a635be568bf5f
+Status: Downloaded newer image for ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:bc34d7d63f978cf601f42863b284bc95a567c50c10e9adb0866a635be568bf5f
+ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:bc34d7d63f978cf601f42863b284bc95a567c50c10e9adb0866a635be568bf5f
+[prepare.sh] Using ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:bc34d7d63f978cf601f42863b284bc95a567c50c10e9adb0866a635be568bf5f as tensorfold-glm53:v0.6.0
+[prepare.sh] Image tensorfold-glm53:v0.6.0 already built with patches a1897d591f70 (use --rebuild to force)
+tensorfold 0.6.0
+[prepare.sh] Using ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:bc34d7d63f978cf601f42863b284bc95a567c50c10e9adb0866a635be568bf5f as tensorfold-glm53:v0.6.0 on the worker
+[prepare.sh] Image tensorfold-glm53:v0.6.0 identical on both Sparks
+[prepare.sh] Downloading local/apex-flash-1-EXL3-4bpw-mcg @ local-20 into /home/user/.cache/huggingface/hub (resumes if interrupted)
+[90mHint: A new version of huggingface_hub (2.4.0) is available! You are using version 2.3.0.
+To update, run: hf update[0m
+[90mHint: The `hf-cli` skill is not installed. Run `hf skills add -g` to teach your AI agents how to use the `hf` CLI.[0m
+[1m[31mError: Model 'local/apex-flash-1-EXL3-4bpw-mcg' not found.
+If the repo is private, make sure you are authenticated and your token has the required permissions.
+If the repo does not exist, create it with: hf repos create local/apex-flash-1-EXL3-4bpw-mcg[0m
+[90mHint: set HF_DEBUG=1 as environment variable for full traceback.[0m
+[prepare.sh] WARN: local/apex-flash-1-EXL3-4bpw-mcg: could not reach Hugging Face; using the snapshot already here (local-20)
+[prepare.sh] Checkpoint: /home/user/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 (164G)
+[prepare.sh] Downloading incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e into /home/user/.cache/huggingface/hub (resumes if interrupted)
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 702.47it/s]
+[prepare.sh] Checkpoint: /home/user/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a (2.2G)
+[prepare.sh] Verifying checkpoint with tensorfold info
+model_type   glm5_next
+family       GLM-5.3-Flash (tensorfold.families.glm5_next)
+engine       MLX lane engine, CUDA engine
+kernels      glm/flash/v1
+num_hidden_layers 45
+hidden_size  4096
+num_experts_per_tok 8
+n_routed_experts 288
+vocab_size   154880
+max_position_embeddings 1048576
+quantization exl3 (4-bit)
+runs on      NVIDIA GPUs (CUDA)
+sampling     {'temperature': 1.0, 'top_p': 0.95}
+[tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+[prepare.sh] Worker has local/apex-flash-1-EXL3-4bpw-mcg @ local-20
+[prepare.sh] Copying incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e to the worker over the Sparks' link (~3 GB to send, resumes)
+[prepare.sh] Done: both Sparks are ready. Start the server with ./start.sh (port 8888).
+[prepare.sh] The first start compiles CUDA kernels for GB10 (a few minutes); they are cached in /home/user/.cache/tensorfold-glm53/<image hash> here and under ~/.cache/tensorfold-glm53 on the worker (a folder per image).
+[2/5] Checks: arguments, link, previous server, port, memory
+[start.sh] Rail roceP2p1s0f0 <-> roceP2p1s0f0: <addr> <-> <addr> reaches the peer (MTU 1500): used
+[start.sh] Link: <addr> (<netdev>) <-> <addr> (<netdev>), RoCE rocep1s0f0,roceP2p1s0f0 / rocep1s0f0,roceP2p1s0f0 (GID 5 / 5; 2 rail(s) -> NCCL_IB_HCA, TF_ROCE_HCA)
+[start.sh] Arguments OK, port 8888 free, 117 GiB memory available here, 117 GiB on the worker
+[3/5] Launch: container glm53-flash-tf, rank 1 on user@<addr>, then rank 0 here
+[start.sh] Rank 1 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 2 --rank 1 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 4 --max-tokens 32768 --thinking --vision
+[start.sh] Rank 0 here: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 2 --rank 0 --master <addr> --master-port 29551 --name apex-flash-1-2x --host 0.0.0.0 --port 8888 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 4 --max-tokens 32768 --thinking --vision
+[4/5] Loading: ~80 GiB of weights on each Spark (2-6 min; the very first start also compiles CUDA kernels)
+  │ GOVERNING TERMS: The software and materials are governed by the NVIDIA Software License Agreement
+  │ (found at https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-software-license-agreement/)
+  │ and the Product-Specific Terms for NVIDIA AI Products
+  │ (found at https://www.nvidia.com/en-us/agreements/enterprise-software/product-specific-terms-for-ai-products/).
+  │ [tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+  │ [tensorfold] loading apex-flash-1-2x: GLM-5.3-Flash (glm5_next) on CUDA, rank 0 of 2
+  │ [tensorfold] building CUDA extension tensorfold_roce_v1 (first start after an install or update; later starts reuse it)
+  ⋯ 16s elapsed, 0.3 GiB on the GPU here, 0.3 on the worker
+  │ [tensorfold] all-gathers up to 512 KiB over RoCE (rocep1s0f0, roceP2p1s0f0; b12x's RoCEnante transport), larger ones over NCCL
+  │ [tensorfold] CUDA rank 0 startup estimate 88.09 GiB within 99.92 GiB; native 1048576, allocated prompt/reply window 1048576, cache slots 1048592
+  ⋯ 32s elapsed, 17.7 of ~88.09 GiB on the GPU here, 18.8 on the worker
+  ⋯ 48s elapsed, 51.9 of ~88.09 GiB on the GPU here, 50.2 on the worker
+  ⋯ 62s elapsed, 76.5 of ~88.09 GiB on the GPU here, 74.8 on the worker
+  │ [tensorfold] the checkpoint's MTP head is not loaded (TF_GLM_MTP=auto): DFlash2 drafts every request
+  │ [tensorfold] building CUDA extension tensorfold_glm_l2pf_v2 (first start after an install or update; later starts reuse it)
+  ⋯ 77s elapsed, 77.2 of ~88.09 GiB on the GPU here, 77.2 on the worker
+  │ [tensorfold] L2 prefetch in decode windows (bulk, up to 8 MiB a site): a 45 sites 8.0 MiB, f 45 sites 8.0 MiB, o 45 sites 8.0 MiB
+  │ [tensorfold] building CUDA extension tensorfold_glm_hc_v2 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] building CUDA extension tensorfold_qmm_v4 (first start after an install or update; later starts reuse it)
+  ⋯ 93s elapsed, 93.1 of ~88.09 GiB on the GPU here, 93.1 on the worker
+  ⋯ 106s elapsed, 93.1 of ~88.09 GiB on the GPU here, 93.1 on the worker
+  │ [tensorfold] building CUDA extension tensorfold_glm_kda_v2 (first start after an install or update; later starts reuse it)
+  ⋯ 122s elapsed, 93.1 of ~88.09 GiB on the GPU here, 93.1 on the worker
+  │ [tensorfold] building CUDA extension tensorfold_experts_v8 (first start after an install or update; later starts reuse it)
+  ⋯ 138s elapsed, 93.1 of ~88.09 GiB on the GPU here, 93.1 on the worker
+  │ [tensorfold] building CUDA extension tensorfold_glm_exl3_v20 (first start after an install or update; later starts reuse it)
+  ⋯ 151s elapsed, 93.1 of ~88.09 GiB on the GPU here, 93.1 on the worker
+  ⋯ 167s elapsed, 93.1 of ~88.09 GiB on the GPU here, 93.1 on the worker
+  ⋯ 183s elapsed, 93.1 of ~88.09 GiB on the GPU here, 93.1 on the worker
+  ⋯ 196s elapsed, 93.3 of ~88.09 GiB on the GPU here, 93.3 on the worker
+  ⋯ 212s elapsed, 93.6 of ~88.09 GiB on the GPU here, 93.6 on the worker
+  ⋯ 228s elapsed, 94.0 of ~88.09 GiB on the GPU here, 94.0 on the worker
+  │ [tensorfold] prompt chunks' hyper-connections: rows split between the ranks, exchanges by send/receive on a second stream in 2 pieces, the next block's front on own rows meanwhile (chunks of 64+ rows)
+  │ [tensorfold] verify windows up to 16 rows, CUDA graphs for 1, 2, 3, 4, 5, 6, 7, 8, 16 rows (TF_GLM_MAX_ROWS, TF_GLM_WIDE_GRAPHS); copies from the reply match 16 tokens (TF_GLM_COPY_REPLY_MATCH)
+  │ [tensorfold] TF_GLM_KV=fp8: the DSA latent cache and the indexer's pooled keys as e4m3 rows with a power-of-two scale each (lossy; drafted replies still equal serial ones)
+  │ [tensorfold] prompt chunks and kept prompt states on a 64-token grid (TF_GLM_PROMPT_GRID)
+  │ [tensorfold] TF_GLM_KDA_CHUNKED=1: KDA prompt chunks in chunked (WY) form, 32-row sub-chunks (close to the serial kernel, not its bits; decode keeps the serial kernel)
+  │ [tensorfold] shared-prefix prompt states: kept where a prompt stops sharing another and at the end of its system block, when they add 256+ tokens (TF_GLM_SHARED_PREFIX)
+  │ [tensorfold] building CUDA extension tensorfold_glm_kda_chunk (first start after an install or update; later starts reuse it)
+  ⋯ 241s elapsed, 94.2 of ~88.09 GiB on the GPU here, 94.2 on the worker
+  │ [tensorfold] drafter timings (ms, fastest of 7): {'v1': 26.6, 'v2': 32.47, 'v3': 38.35, 'v4': 44.92, 'v5': 49.56, 'v6': 54.28, 'v7': 57.65, 'v8': 58.56, 'block': 2.92, 'taps8': 0.39}
+  │ [tensorfold] drafter costs (ms): verify 26.6 34.3 38.9 43.6 48.3 53.0 57.7 62.3; DFlash2 block 2.92 (+0.049 a tap row)
+  ⋯ 257s elapsed, 95.3 of ~88.09 GiB on the GPU here, 94.3 on the worker
+  │ [tensorfold] vision: image and video input, a 1.05 GiB tower with 0.75 GiB of workspace; at most 2048 tokens a picture, 16384 a clip (128 frames at 2 a second)
+  ⋯ 272s elapsed, 95.9 of ~88.09 GiB on the GPU here, 94.7 on the worker
+  │ [tensorfold] --parallel 4: up to 4 requests decode together, their caches in one pool of 2476032 tokens (each up to 1048576), their verify windows 32 rows together (TF_GLM_MULTI_WINDOW); DFlash2 drafts, prompt chunks of 1024 rows while others decode (TF_GLM_FILL_ROWS, TF_GLM_FILL_SHARE 0.5); waiting prompts share prompt chunks (TF_GLM_MULTI_PREFILL); sampler streams, depth policy, async messages off, lone stream on the one-stream graphs off; prompt layer slices target 200 ms
+  │ tensorfold: --vision: this checkpoint's chat template has no media branch TensorFold knows how to extend (GLM-5.3 Flash's chat_template.jinja)
+
+── rank 0 (here): last server log lines ──
+  │ [tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+  │ [tensorfold] loading apex-flash-1-2x: GLM-5.3-Flash (glm5_next) on CUDA, rank 0 of 2
+  │ [tensorfold] building CUDA extension tensorfold_roce_v1 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] all-gathers up to 512 KiB over RoCE (rocep1s0f0, roceP2p1s0f0; b12x's RoCEnante transport), larger ones over NCCL
+  │ [tensorfold] CUDA rank 0 startup estimate 88.09 GiB within 99.92 GiB; native 1048576, allocated prompt/reply window 1048576, cache slots 1048592
+  │ [tensorfold] the checkpoint's MTP head is not loaded (TF_GLM_MTP=auto): DFlash2 drafts every request
+  │ [tensorfold] building CUDA extension tensorfold_glm_l2pf_v2 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] L2 prefetch in decode windows (bulk, up to 8 MiB a site): a 45 sites 8.0 MiB, f 45 sites 8.0 MiB, o 45 sites 8.0 MiB
+  │ [tensorfold] building CUDA extension tensorfold_glm_hc_v2 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] building CUDA extension tensorfold_qmm_v4 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] building CUDA extension tensorfold_glm_kda_v2 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] building CUDA extension tensorfold_experts_v8 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] building CUDA extension tensorfold_glm_exl3_v20 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] prompt chunks' hyper-connections: rows split between the ranks, exchanges by send/receive on a second stream in 2 pieces, the next block's front on own rows meanwhile (chunks of 64+ rows)
+  │ [tensorfold] verify windows up to 16 rows, CUDA graphs for 1, 2, 3, 4, 5, 6, 7, 8, 16 rows (TF_GLM_MAX_ROWS, TF_GLM_WIDE_GRAPHS); copies from the reply match 16 tokens (TF_GLM_COPY_REPLY_MATCH)
+  │ [tensorfold] TF_GLM_KV=fp8: the DSA latent cache and the indexer's pooled keys as e4m3 rows with a power-of-two scale each (lossy; drafted replies still equal serial ones)
+  │ [tensorfold] prompt chunks and kept prompt states on a 64-token grid (TF_GLM_PROMPT_GRID)
+  │ [tensorfold] TF_GLM_KDA_CHUNKED=1: KDA prompt chunks in chunked (WY) form, 32-row sub-chunks (close to the serial kernel, not its bits; decode keeps the serial kernel)
+  │ [tensorfold] shared-prefix prompt states: kept where a prompt stops sharing another and at the end of its system block, when they add 256+ tokens (TF_GLM_SHARED_PREFIX)
+  │ [tensorfold] building CUDA extension tensorfold_glm_kda_chunk (first start after an install or update; later starts reuse it)
+  │ [tensorfold] drafter timings (ms, fastest of 7): {'v1': 26.6, 'v2': 32.47, 'v3': 38.35, 'v4': 44.92, 'v5': 49.56, 'v6': 54.28, 'v7': 57.65, 'v8': 58.56, 'block': 2.92, 'taps8': 0.39}
+  │ [tensorfold] drafter costs (ms): verify 26.6 34.3 38.9 43.6 48.3 53.0 57.7 62.3; DFlash2 block 2.92 (+0.049 a tap row)
+  │ [tensorfold] vision: image and video input, a 1.05 GiB tower with 0.75 GiB of workspace; at most 2048 tokens a picture, 16384 a clip (128 frames at 2 a second)
+  │ [tensorfold] --parallel 4: up to 4 requests decode together, their caches in one pool of 2476032 tokens (each up to 1048576), their verify windows 32 rows together (TF_GLM_MULTI_WINDOW); DFlash2 drafts, prompt chunks of 1024 rows while others decode (TF_GLM_FILL_ROWS, TF_GLM_FILL_SHARE 0.5); waiting prompts share prompt chunks (TF_GLM_MULTI_PREFILL); sampler streams, depth policy, async messages off, lone stream on the one-stream graphs off; prompt layer slices target 200 ms
+  │ tensorfold: --vision: this checkpoint's chat template has no media branch TensorFold knows how to extend (GLM-5.3 Flash's chat_template.jinja)
+── rank 1 (user@<addr>): last server log lines ──
+  │ frame #20: __libc_start_main + 0x98 (0xe4f2585c8598 in /lib/aarch64-linux-gnu/libc.so.6)
+  │ frame #21: _start + 0x30 (0x5f5c70 in /usr/bin/python3)
+  │ 
+  │ Traceback (most recent call last):
+  │   File "/usr/local/bin/tensorfold", line 6, in <module>
+  │     sys.exit(main())
+  │              ^^^^^^
+  │   File "/usr/local/lib/python3.12/dist-packages/tensorfold/cli.py", line 41, in main
+  │     return int(args.func(args) or 0)
+  │                ^^^^^^^^^^^^^^^
+  │   File "/usr/local/lib/python3.12/dist-packages/tensorfold/cli.py", line 394, in cmd_serve
+  │     return _serve_cuda(args, family, model_dir, context)
+  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  │   File "/usr/local/lib/python3.12/dist-packages/tensorfold/cli.py", line 287, in _serve_cuda
+  │     engine.follow()
+  │   File "/usr/local/lib/python3.12/dist-packages/tensorfold/families/glm5_next/cuda/engine.py", line 1550, in follow
+  │     self.multi.follow()
+  │   File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+  │     return func(*args, **kwargs)
+  │            ^^^^^^^^^^^^^^^^^^^^^
+  │   File "/usr/local/lib/python3.12/dist-packages/tensorfold/families/glm5_next/cuda/multi.py", line 2272, in follow
+  │     self.g._await_bell()
+  │   File "/usr/local/lib/python3.12/dist-packages/tensorfold/families/glm5_next/cuda/engine.py", line 996, in _await_bell
+  │     store.wait([key], timedelta(hours=1))
+  │ torch.distributed.DistNetworkError: Failed to recv, got 0 bytes. Connection was likely closed. Did the remote server shutdown or crash?
+[start.sh] ERROR: rank 0 exited (code 1) before it was ready

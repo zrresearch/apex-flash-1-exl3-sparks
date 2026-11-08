@@ -14,7 +14,7 @@ data and configuration behind it.
 | Source download (BF16, 642.7 GB @ `28c647a6`) | done, checksums verified |
 | Conversion (EXL3 4 bpw, mcg, routed experts only) | done, 16 h 45 min on one Spark |
 | Layout check against Mia's TensorFold checkpoint | pass, 150,226 tensors, dtypes match |
-| Serving, 2 nodes | first start in progress |
+| Serving, 2 nodes | live: TP=2, 4 streams, 1M window, vision off |
 | Serving, 3 nodes | planned |
 | Serving, 4 nodes (switch, Mia `tp4` branch) | planned |
 | Speed and quality benchmarks | planned |

@@ -152,7 +152,8 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
   <div class="series">
     <span class="label">SparkMan field report · Fleet notes no. 1</span>
     <span class="chip ok">Conversion complete</span>
-    <span class="chip warn">Serving tests in progress</span>
+    <span class="chip ok">Serving on 2 nodes</span>
+    <span class="chip warn">Benchmarks, 3 and 4 nodes pending</span>
   </div>
   <h1>Apex Flash on Four Sparks</h1>
   <p class="sub">Building a 4-bit EXL3 quantization of a 321B security post-train of GLM-5.3-Flash on one DGX Spark, and serving it with TensorFold across two, three and four GB10 nodes.</p>
@@ -328,16 +329,38 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
   <div class="prose">
     <p>The layout check passed: all 150,226 tensor names match the reference, the stored dtypes match, and all 46 layers are present. The tensor suffixes break down as 37,152 each of <code>trellis</code>, <code>suh</code>, <code>svh</code> and <code>mcg</code> (one set per quantized projection), plus 1,078 BF16 weights, 135 biases and 45 each of the hyper-connection scale and base tensors. Our build differs from SloptimistPrime's by 83 MB, consistent with the same recipe and calibration.</p>
     <p>The checkpoint was copied to the models library under <code>GLM/local/apex-flash-1-EXL3-4bpw-mcg</code> (33 files, byte totals equal) and indexed.</p>
-    <p><b>Not yet established:</b> whether TensorFold loads it, its speed on each group, and whether its answers keep the fine-tune's gains. Sections 6 and 7 cover these.</p>
+    <p>TensorFold loads it and serves it on two nodes (Section 6.1). <b>Not yet established:</b> its speed on each group, and whether its answers keep the fine-tune's gains. Sections 6–8 cover these.</p>
   </div>
 </section>
 
 <section>
   <h2><span class="num">6</span>Serving</h2>
   <div class="prose">
-    <h3>6.1 Two nodes (pair-pny), in progress</h3>
+    <h3>6.1 Two nodes (pair-pny): serving</h3>
     <p>Mia's recipe was cloned on pny-head at commit <code>7d42f90</code>, the same commit the ring runs, with the ring's local patch to <code>start.sh</code> (a worker counts as stopped only after four failed liveness checks in a row). The recipe looks up checkpoints by Hugging Face repository id, so the build was installed into both nodes' caches as <code>local/apex-flash-1-EXL3-4bpw-mcg</code> at revision <code>local-20261108</code>. On pny-worker these are hard links to the conversion output; pny-head received a copy over the direct cable at about 365 MB/s, and the file manifests match. The recipe's download step fails for this id and falls back to the pinned local snapshot.</p>
-    <p>Settings: worker over the direct cable, served name <code>apex-flash-1-2x</code>, port 8888, the recipe's defaults otherwise (4 concurrent requests, 1,048,576-token window, FP8 KV cache, DFlash2 drafts, with the drafter copied from the library at <code>bf582e4e</code>). The preflight found both RDMA rails and the MTU 1500 link. At the time of writing the first start is pulling Mia's prebuilt engine image; next it runs <code>tensorfold info</code> on the checkpoint, loads both ranks and runs its smoke test.</p>
+    <p>Settings: worker over the direct cable, served name <code>apex-flash-1-2x</code>, port 8888, the recipe's defaults otherwise (4 concurrent requests, 1,048,576-token window, FP8 KV cache, DFlash2 drafts, with the drafter copied from the library at <code>bf582e4e</code>). The preflight found both RDMA rails and the MTU 1500 link. The recipe pulled Mia's prebuilt engine image by digest, and <code>tensorfold info</code> accepted the checkpoint as GLM-5.3-Flash (<code>glm5_next</code>).</p>
+    <p><b>First start: failed on vision.</b> Both ranks loaded their weights (about 95 GiB on each GPU), compiled the GLM and EXL3 kernels and timed the drafter. Rank 0 then stopped with <code>--vision: this checkpoint's chat template has no media branch TensorFold knows how to extend</code>. apex-flash-1 ships its own chat template, whose image markers differ from GLM-5.3-Flash's; the SloptimistPrime build documents the same and applies a small runtime adapter. Rank 1's error was only the consequence of rank 0 leaving. Fix: <code>VISION=0</code> in the recipe's local settings. Cantina evaluated apex on text only, and every planned benchmark is text.</p>
+    <p><b>Second start: live.</b> With kernels cached, the server answered after 94 s and passed the recipe's smoke test (one completion through both ranks, 0.10 s). Running configuration:</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 6.</b> apex-flash-1 on two Sparks, as served.</caption>
+      <tbody>
+        <tr><th>Served name</th><td><code>apex-flash-1-2x</code>, port 8888 on the head</td></tr>
+        <tr><th>Window</th><td class="n" style="text-align:left">1,048,576 tokens a request</td></tr>
+        <tr><th>Concurrency</th><td>4 requests decode together, sharing one KV pool of 2,582,528 tokens</td></tr>
+        <tr><th>KV cache</th><td>FP8 (e4m3 with power-of-two scales)</td></tr>
+        <tr><th>Dense weights</th><td>the recipe's default <code>q4</code>: TensorFold quantizes the BF16 dense layers to 4 bits at load time</td></tr>
+        <tr><th>Drafts</th><td>DFlash2; the checkpoint's MTP head is not loaded in this mode</td></tr>
+        <tr><th>Exchanges</th><td>all-gathers up to 512 KiB over RoCE on both rails, larger ones over NCCL</td></tr>
+        <tr><th>Startup estimate</th><td>88.09 GiB within 99.92 GiB on rank 0</td></tr>
+        <tr><th>Vision</th><td>off</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>The dense layers are therefore served at 4 bits, not the BF16 stored in the checkpoint. This is Mia's default and what the ring runs for GLM-5.3-Flash, so the comparison in Section 8 stays like for like. The SloptimistPrime build recommends BF16 dense; a <code>DENSE=bf16</code> run is a candidate follow-up.</p>
+    <p><b>Coherence check.</b> One question, temperature 0: review a 4-line C function that <code>strcpy</code>s an argument into a 16-byte stack buffer and name the CWE. apex reasoned for 124 tokens and answered in 122: a stack buffer overflow, CWE-120 leading to CWE-787, a bounded-copy fix, and the missing NULL check as CWE-476. This shows the build answers coherently. It is not a benchmark.</p>
     <h3>6.2 Three nodes (ring), planned</h3>
     <p>The ring's existing recipe and <code>start-tp3.sh</code>, with <code>MODEL_ID</code> and <code>MODEL_REVISION</code> pointed at the local build and a separate launcher beside the GLM ones.</p>
     <h3>6.3 Four nodes (switch-dell), planned</h3>
@@ -437,7 +460,7 @@ docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out
   </ol>
 </section>
 
-<footer>Last updated 8 November 2026, while the two-node first start was in progress. Sections 6–8 will be filled in as runs complete.</footer>
+<footer>Last updated 8 November 2026: serving on two nodes. Benchmarks, three- and four-node runs to follow. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
 </div>
 
 <script>
