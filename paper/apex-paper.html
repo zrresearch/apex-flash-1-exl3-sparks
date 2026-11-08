@@ -17,6 +17,10 @@
   --warn-soft: #f6ead2;
   --ok: #2f6b3a;
   --ok-soft: #dcefe0;
+  --s1: #0f6a94;
+  --s2: #c0702a;
+  --s3: #7a5aa6;
+  --s4: #5d7a2a;
   --f-display: "IBM Plex Sans Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -37,6 +41,10 @@
     --warn-soft: #3a2f1a;
     --ok: #8fcf9a;
     --ok-soft: #1f3524;
+    --s1: #3d9fd3;
+    --s2: #c97a2e;
+    --s3: #9a7fd8;
+    --s4: #7a9e3a;
   }
 }
 :root[data-theme="dark"] {
@@ -52,6 +60,10 @@
   --warn-soft: #3a2f1a;
   --ok: #8fcf9a;
   --ok-soft: #1f3524;
+  --s1: #3d9fd3;
+  --s2: #c97a2e;
+  --s3: #9a7fd8;
+  --s4: #7a9e3a;
 }
 
 * { box-sizing: border-box; }
@@ -125,6 +137,14 @@ figcaption b { color: var(--ink); font-family: var(--f-display); }
 .bar { fill: var(--accent); }
 .bar.hot { fill: var(--ink); }
 .hit { fill: transparent; cursor: crosshair; }
+.sbar.s1, .legend .s1 { fill: var(--s1); background: var(--s1); }
+.sbar.s2, .legend .s2 { fill: var(--s2); background: var(--s2); }
+.sbar.s3, .legend .s3 { fill: var(--s3); background: var(--s3); }
+.sbar.s4, .legend .s4 { fill: var(--s4); background: var(--s4); }
+.sbar.hot { fill: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--f-display); font-size: 0.85rem; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
 
 /* pipeline */
 .pipe { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; counter-reset: s; border-top: 2px solid var(--accent); }
@@ -152,8 +172,9 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
   <div class="series">
     <span class="label">SparkMan field report · Fleet notes no. 1</span>
     <span class="chip ok">Conversion complete</span>
-    <span class="chip ok">Serving on 2 nodes</span>
-    <span class="chip warn">Benchmarks, 3 and 4 nodes pending</span>
+    <span class="chip ok">Serving on 2 and 3 nodes</span>
+    <span class="chip ok">2-node benchmarks done</span>
+    <span class="chip warn">3-node benchmarks running · 4 nodes pending</span>
   </div>
   <h1>Apex Flash on Four Sparks</h1>
   <p class="sub">Building a 4-bit EXL3 quantization of a 321B security post-train of GLM-5.3-Flash on one DGX Spark, and serving it with TensorFold across two, three and four GB10 nodes.</p>
@@ -329,7 +350,7 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
   <div class="prose">
     <p>The layout check passed: all 150,226 tensor names match the reference, the stored dtypes match, and all 46 layers are present. The tensor suffixes break down as 37,152 each of <code>trellis</code>, <code>suh</code>, <code>svh</code> and <code>mcg</code> (one set per quantized projection), plus 1,078 BF16 weights, 135 biases and 45 each of the hyper-connection scale and base tensors. Our build differs from SloptimistPrime's by 83 MB, consistent with the same recipe and calibration.</p>
     <p>The checkpoint was copied to the models library under <code>GLM/local/apex-flash-1-EXL3-4bpw-mcg</code> (33 files, byte totals equal) and indexed.</p>
-    <p>TensorFold loads it and serves it on two nodes (Section 6.1). <b>Not yet established:</b> its speed on each group, and whether its answers keep the fine-tune's gains. Sections 6–8 cover these.</p>
+    <p>TensorFold loads it and serves it on two nodes (Section 6.1). <b>Not yet established:</b> its speed on each group, and whether its answers keep the fine-tune's gains. Sections 6 and 7 cover these.</p>
   </div>
 </section>
 
@@ -359,37 +380,77 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
     </table>
   </div>
   <div class="prose">
-    <p>The dense layers are therefore served at 4 bits, not the BF16 stored in the checkpoint. This is Mia's default and what the ring runs for GLM-5.3-Flash, so the comparison in Section 8 stays like for like. The SloptimistPrime build recommends BF16 dense; a <code>DENSE=bf16</code> run is a candidate follow-up.</p>
+    <p>The dense layers are therefore served at 4 bits, not the BF16 stored in the checkpoint. This is Mia's default and what the ring runs for GLM-5.3-Flash, so the comparison in Section 7 stays like for like. The SloptimistPrime build recommends BF16 dense; a <code>DENSE=bf16</code> run is a candidate follow-up.</p>
     <p><b>Coherence check.</b> One question, temperature 0: review a 4-line C function that <code>strcpy</code>s an argument into a 16-byte stack buffer and name the CWE. apex reasoned for 124 tokens and answered in 122: a stack buffer overflow, CWE-120 leading to CWE-787, a bounded-copy fix, and the missing NULL check as CWE-476. This shows the build answers coherently. It is not a benchmark.</p>
-    <h3>6.2 Three nodes (ring), planned</h3>
-    <p>The ring's existing recipe and <code>start-tp3.sh</code>, with <code>MODEL_ID</code> and <code>MODEL_REVISION</code> pointed at the local build and a separate launcher beside the GLM ones.</p>
+    <h3>6.2 Three nodes (ring): serving</h3>
+    <p>The ring's existing recipe and <code>start-tp3.sh</code>, run through a new launcher script <code>up-apex.sh</code> beside the GLM ones. It sets <code>MODEL_ID</code>, <code>MODEL_REVISION</code>, <code>SERVED_NAME=apex-flash-1-3x</code> and <code>VISION=0</code>, and otherwise uses the same flags as the ring's GLM-5.3-Flash TensorFold launcher (loop guard on, thinking budget 16,384 tokens), so the base-model comparison is like for like. The build was copied into the head's cache from the library (about 530 MB/s), and the recipe copied it on to both workers over the fabric. One stop on the way: the conversion container had written the shards with mode <code>0600</code>, which the library's read-only mount could not read; they were made world-readable like the rest of the library.</p>
+    <p>The first start loaded in 89 s. At three nodes the recipe's defaults rise to 8 concurrent requests sharing a KV pool of 5,101,568 tokens, each still up to 1,048,576. The same C-function question gave the same diagnosis (CWE-120/787, CWE-476). The model was then registered in SparkMan and restarted from its launcher.</p>
     <h3>6.3 Four nodes (switch-dell), planned</h3>
     <p>Mia's main branch supports two and three nodes. Their <code>tp4</code> branch (commit <code>d220030</code>) adds <code>start-tp4.sh</code> for four nodes on a switch and <code>start-tp4-switchless.sh</code> for a ring of direct cables. Mia measured the ring version; the switch version is documented as not yet tested on a switch. Mia's own four-node rig was a daisy chain; ours is a lossless QSFP switch, on which Mia's DeepSeek 4x recipe already runs. The script expects every pair of ranks to share a RoCE subnet. Our Dells carry one subnet per CX-7 half, shared by all four, so the check should pass; its dry run will confirm this before any start. The test needs DeepSeek V4.1 Flash 4x stopped on that group.</p>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">7</span>Limitations</h2>
+  <h2><span class="num">7</span>Benchmarks</h2>
+  <div class="prose">
+    <p>All runs use SparkMan's benchmark suite against one model copy at a time (<code>replica</code> scope, through the group's head), with the same settings as the site's earlier DeepSeek and GLM runs so results compare across models. Decode: 1, 2, 4 and 8 concurrent streams, 1,024 tokens each, on code and on prose prompts. Prefill: one prompt at each size from 4K to 256K tokens. Quality: sparkDash's eight categories, scored item by item. Tool use: tool-eval-bench's quick suite. Raw results for every run are in the repository's <code>benchmarks/</code> folder.</p>
+  </div>
+
+  <figure>
+    <div class="panels">
+      <div class="panel">
+        <h4>Decode, code prompts: total tokens/s</h4>
+        <div class="chart-wrap" id="c-dec-code"></div>
+      </div>
+      <div class="panel">
+        <h4>Decode, prose prompts: total tokens/s</h4>
+        <div class="chart-wrap" id="c-dec-prose"></div>
+      </div>
+    </div>
+    <div class="legend" id="dec-legend"></div>
+    <figcaption><b>Figure 2.</b> Aggregate decode throughput by number of concurrent streams. Hover a bar for per-stream speed and time to first token. Three- and four-node results are added as they complete.</figcaption>
+  </figure>
+
+  <div class="tbl" id="t-decode"></div>
+  <div class="prose">
+    <p><b>Two nodes.</b> One stream decodes at 75 tok/s on code and 46 on prose; code drafts better, so DFlash2 accepts more tokens a step. Throughput keeps rising to 4 streams (127 and 86 tok/s) and is flat at 8, because the two-node recipe decodes 4 requests at a time and queues the rest: time to first token jumps from under 0.7 s to 15–24 s. These figures are below Mia's published two-node GLM-5.3-Flash numbers (60 tok/s prose, 115 structured at one stream), measured with different prompts, capped GPU clocks and an MTU 9000 link, so the gap is not a like-for-like result; the ring comparison in this section is.</p>
+  </div>
+
+  <div class="tbl" id="t-prefill"></div>
+  <div class="prose">
+    <p>Prefill holds at about 1,800–1,880 tok/s from 8K to 128K tokens and falls to 1,665 at 256K. The 4K figure is lower because fixed per-request costs dominate. A 256K-token prompt waits 2.6 minutes for its first token on two nodes.</p>
+  </div>
+
+  <div class="tbl" id="t-quality"></div>
+  <div class="prose">
+    <p>Quality on two nodes averages 93.3% across the eight categories, with no reply cut off at its token limit. Reasoning, arithmetic, state tracking and long recall are perfect; instruction following (72%) is the weak category, consistent with the strict-format failures the SloptimistPrime build reports. This is a general suite: it measures whether the 4-bit build is sound, not whether Cantina's security training survived. The base-model comparison below and a security-specific evaluation address that.</p>
+    <p><b>Tool use.</b> tool-eval-bench's quick suite on two nodes scored <b>100</b>: 15 of 15 scenarios passed, three in each of categories A–E.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8</span>Limitations</h2>
   <div class="prose">
     <p><b>Calibration differs from Mia's.</b> We matched the layout of Mia's checkpoint, which decides whether it loads. We could not match its calibration, which is unpublished and described as tuned to math, code, tool-call and chat workloads. Ours used ExLlamaV3's default set. This affects quality, not compatibility.</p>
     <p><b>The fine-tune may not survive 4-bit.</b> The recipe author measured apex-flash-1's routed experts at about 8×10⁻⁵ relative Frobenius distance from the base model, far below the error that 4-bit quantization adds (Figure 1 shows per-layer output errors of 6×10⁻³ to 3×10⁻²). A low-rank, coherent change can survive noise larger than itself, so this does not settle the question, but it makes a comparison against the base model necessary before trusting the 4-bit build for security work.</p>
-    <p><b>Quality is unmeasured.</b> The converter's error figures describe reconstruction on calibration text. They say nothing about task accuracy.</p>
+    <p><b>Quality is measured only in general.</b> The converter's error figures describe reconstruction on calibration text, and SparkMan's quality suite covers general skills. Neither measures security-investigation ability, which is what Cantina trained for.</p>
     <p><b>Topology.</b> The pair runs at MTU 1500 where the other groups use 9000, and the four-node switch path is untested upstream.</p>
   </div>
 </section>
 
 <section>
-  <h2><span class="num">8</span>Next steps</h2>
+  <h2><span class="num">9</span>Next steps</h2>
   <div class="tbl">
     <table>
-      <caption><b>Table 5.</b> Planned measurements. All approved by the operator.</caption>
-      <thead><tr><th>Measurement</th><th>Groups</th><th>Compared with</th></tr></thead>
+      <caption><b>Table 5.</b> Measurements, done and planned. All approved by the operator.</caption>
+      <thead><tr><th>Measurement</th><th>Groups</th><th>Compared with</th><th>State</th></tr></thead>
       <tbody>
-        <tr><td>Loads, smoke test, served through the gateway</td><td>2, 3, 4 nodes</td><td>none</td></tr>
-        <tr><td>Decode and prefill speed, 1–8 concurrent requests</td><td>2, 3, 4 nodes</td><td>each other; GLM-5.3-Flash TensorFold on the ring</td></tr>
-        <tr><td>Largest usable context and KV pool</td><td>2, 3, 4 nodes</td><td>each other</td></tr>
-        <tr><td>Quality on SparkMan's benchmark set</td><td>one group</td><td>base GLM-5.3-Flash, same quantization</td></tr>
-        <tr><td>If apex shows no gain: higher expert bitrate (5–6 bpw)</td><td>3 or 4 nodes</td><td>the 4-bit build</td></tr>
+        <tr><td>Loads and serves</td><td>2, 3, 4 nodes</td><td>none</td><td>2 and 3 done</td></tr>
+        <tr><td>Decode and prefill speed, 1–8 concurrent requests</td><td>2, 3, 4 nodes</td><td>each other; GLM-5.3-Flash TensorFold on the ring</td><td>2 done, 3 running</td></tr>
+        <tr><td>Largest KV pool</td><td>2, 3, 4 nodes</td><td>each other</td><td>2 and 3 recorded</td></tr>
+        <tr><td>Quality and tool use on SparkMan's suite</td><td>2, 3 nodes</td><td>base GLM-5.3-Flash on the ring, same quantization and flags</td><td>2 done, 3 running</td></tr>
+        <tr><td>A security-specific evaluation</td><td>one group</td><td>base GLM-5.3-Flash</td><td>to design</td></tr>
+        <tr><td>If apex shows no gain: higher expert bitrate (5–6 bpw)</td><td>3 or 4 nodes</td><td>the 4-bit build</td><td>conditional</td></tr>
       </tbody>
     </table>
   </div>
@@ -444,6 +505,8 @@ docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out
   <div class="prose">
     <p>Claude Code's auto-mode safety check blocked the first launch of the conversion because <code>run.sh</code> executes code fetched from third-party repositories. The helper scripts were read before the run: they write only inside the job folder, fetch nothing but one public index file, and start no other programs. The operator approved the exact launch command.</p>
     <p>A watcher that detected the serving script by process name missed it, because the recipe re-executes itself by absolute path. The pattern was corrected; no work was lost.</p>
+    <p>Two faults in SparkMan's benchmark tooling surfaced on the first runs and were fixed. The quality suite failed at once whenever it included long recall: the vendored sparkDash helper <code>longSizesForContext</code> returns <code>{ run, skipped }</code>, but SparkMan used the result as a list, and its type declaration hid the mismatch. One line and the declaration were corrected, then SparkMan was type-checked, built and restarted (the gateway was not). tool-eval-bench failed at startup because its virtual environment, built for Python 3.12, linked to the system <code>python3</code>, which had since moved to 3.14; the link was pointed back at the still-installed 3.12, with the operator's approval.</p>
+    <p>Registering the models in SparkMan uses a temporary account for its API. The safety check blocked creating it until the operator approved that exact command.</p>
     <p>Site rules followed throughout: checkpoints downloaded only to the library host; no running model stopped; no secrets printed; nothing written to the SparkMan repository.</p>
   </div>
 </section>
@@ -460,7 +523,7 @@ docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out
   </ol>
 </section>
 
-<footer>Last updated 8 November 2026: serving on two nodes. Benchmarks, three- and four-node runs to follow. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
+<footer>Last updated 8 November 2026: two-node benchmarks complete; three nodes serving and benchmarking; base-model and four-node runs to follow. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
 </div>
 
 <script>
@@ -496,6 +559,78 @@ function barChart(id, rows, val, max, ticks, fmtTick, fmtTip) {
 }
 barChart("c-rfn", moe, r => r[2], 0.035, [0, 0.01, 0.02, 0.03], t => t.toFixed(2), r => `layer ${r[0]} · rfn ${r[2].toFixed(4)} · ${r[3].toFixed(1)} dB`);
 barChart("c-time", moe, r => r[4] / 60, 25, [0, 5, 10, 15, 20, 25], t => t, r => `layer ${r[0]} · ${(r[4] / 60).toFixed(1)} min · ${r[5].toFixed(1)} GB`);
+
+// ---------- benchmarks: one entry per setup; add 3x / 4x / base GLM as they complete ----------
+const BENCH = {
+  "apex 2 nodes": {
+    decode: { code: [[1,75.3,75.3,173],[2,97.3,50.0,510],[4,126.6,33.6,658],[8,121.1,32.1,15190]],
+              prose: [[1,45.7,45.7,170],[2,64.3,32.5,274],[4,86.0,21.8,270],[8,85.5,21.6,23520]] },
+    prefill: [[4111,1097,3747],[8205,1794,4573],[16397,1845,8887],[32782,1882,17419],[65552,1854,35351],[131086,1794,73072],[262160,1665,157436]],
+    quality: { overall: 93.3, cats: { qa:[133,150], reasoning:[40,40], arithmetic:[40,40], state:[40,40], gsm8k:[194,200], mmlu:[251,285], instruction:[29,40], "long-recall":[2,2] } },
+    tooleval: 100,
+  },
+};
+const SETUPS = Object.keys(BENCH);
+const SERIES = ["s1", "s2", "s3", "s4"];
+
+function groupedBars(id, kind) {
+  const host = document.getElementById(id);
+  const W = 440, H = 210, m = { l: 40, r: 6, t: 8, b: 30 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const levels = [1, 2, 4, 8];
+  let max = 0; SETUPS.forEach(s => BENCH[s].decode[kind].forEach(r => { max = Math.max(max, r[1]); }));
+  const top = Math.ceil(max / 50) * 50, ticks = []; for (let v = 0; v <= top; v += 50) ticks.push(v);
+  const y = v => m.t + ih - (v / top) * ih;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  const g = el("g", { class: "grid" }, svg), ax = el("g", { class: "axis" }, svg);
+  ticks.forEach(t => { el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); const tx = el("text", { x: m.l - 6, y: y(t) + 3, "text-anchor": "end" }, ax); tx.textContent = t; });
+  const gw = iw / levels.length, n = SETUPS.length, bw = Math.min(28, (gw - 16) / n - 2);
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true;
+  levels.forEach((c, gi) => {
+    const x0 = m.l + gi * gw + (gw - (n * (bw + 2) - 2)) / 2;
+    const lab = el("text", { x: m.l + gi * gw + gw / 2, y: H - 12, "text-anchor": "middle" }, ax); lab.textContent = c + (gi === 0 ? " stream" : "");
+    SETUPS.forEach((s, si) => {
+      const r = BENCH[s].decode[kind].find(row => row[0] === c); if (!r) return;
+      const x = x0 + si * (bw + 2), tp = y(r[1]), h = m.t + ih - tp, rad = Math.min(3, bw / 2, h);
+      const bar = el("path", { d: `M${x},${m.t + ih} V${tp + rad} Q${x},${tp} ${x + rad},${tp} H${x + bw - rad} Q${x + bw},${tp} ${x + bw},${tp + rad} V${m.t + ih} Z`, class: "sbar " + SERIES[si] }, svg);
+      const hit = el("rect", { x: x - 1, y: m.t, width: bw + 2, height: ih, class: "hit" }, svg);
+      hit.addEventListener("pointerenter", () => { bar.classList.add("hot"); tip.hidden = false; tip.textContent = `${s} · ${c} streams · ${r[1].toFixed(1)} tok/s total · ${r[2].toFixed(1)} each · TTFT ${(r[3] / 1000).toFixed(2)} s`; const sc = svg.getBoundingClientRect().width / W; tip.style.left = ((x + bw / 2) * sc) + "px"; tip.style.top = (tp * sc) + "px"; });
+      hit.addEventListener("pointerleave", () => { bar.classList.remove("hot"); tip.hidden = true; });
+    });
+  });
+  el("line", { x1: m.l, x2: W - m.r, y1: m.t + ih, y2: m.t + ih, stroke: "currentColor", "stroke-opacity": "0.35" }, svg);
+  host.appendChild(svg); host.appendChild(tip);
+}
+groupedBars("c-dec-code", "code");
+groupedBars("c-dec-prose", "prose");
+const lg = document.getElementById("dec-legend");
+if (SETUPS.length > 1) SETUPS.forEach((s, i) => { const k = document.createElement("span"); k.innerHTML = `<i class="${SERIES[i]}"></i>${s}`; lg.appendChild(k); });
+else lg.hidden = true;
+
+function table(hostId, caption, head, rows) {
+  const t = document.createElement("table");
+  t.innerHTML = `<caption>${caption}</caption><thead><tr>${head.map((h, i) => `<th${i ? " class='n'" : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td${i ? " class='n'" : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody>`;
+  document.getElementById(hostId).appendChild(t);
+}
+{
+  const head = ["Streams"]; SETUPS.forEach(s => head.push(`${s}: code`, `prose`, `TTFT code`));
+  const rows = [1, 2, 4, 8].map(c => { const r = [c]; SETUPS.forEach(s => { const a = BENCH[s].decode.code.find(x => x[0] === c), b = BENCH[s].decode.prose.find(x => x[0] === c); r.push(a ? `${a[1].toFixed(1)} (${a[2].toFixed(1)})` : "–", b ? `${b[1].toFixed(1)} (${b[2].toFixed(1)})` : "–", a ? (a[3] / 1000).toFixed(2) + " s" : "–"); }); return r; });
+  table("t-decode", "<b>Table 7.</b> Decode throughput, tokens/s total (per stream in brackets), and median time to first token.", head, rows);
+}
+{
+  const sizes = BENCH[SETUPS[0]].prefill.map(r => r[0]);
+  const head = ["Prompt tokens"]; SETUPS.forEach(s => head.push(`${s}: tok/s`, "first token"));
+  const rows = sizes.map((z, i) => { const r = [z.toLocaleString("en-US")]; SETUPS.forEach(s => { const p = BENCH[s].prefill[i]; r.push(p ? p[1].toLocaleString("en-US") : "–", p ? (p[2] / 1000).toFixed(1) + " s" : "–"); }); return r; });
+  table("t-prefill", "<b>Table 8.</b> Prefill throughput and time to first token by prompt size.", head, rows);
+}
+{
+  const cats = Object.keys(BENCH[SETUPS[0]].quality.cats);
+  const head = ["Category"]; SETUPS.forEach(s => head.push(s));
+  const rows = cats.map(c => { const r = [c]; SETUPS.forEach(s => { const q = BENCH[s].quality && BENCH[s].quality.cats[c]; r.push(q ? `${q[0]}/${q[1]} · ${(100 * q[0] / q[1]).toFixed(0)}%` : "–"); }); return r; });
+  const o = ["<b>Overall</b> (mean of categories)"]; SETUPS.forEach(s => o.push(BENCH[s].quality ? `<b>${BENCH[s].quality.overall.toFixed(1)}%</b>` : "–")); rows.push(o);
+  const te = ["Tool use, quick suite"]; SETUPS.forEach(s => te.push(BENCH[s].tooleval != null ? String(BENCH[s].tooleval) : "–")); rows.push(te);
+  table("t-quality", "<b>Table 9.</b> Quality by category (correct / items) and tool-eval-bench score.", head, rows);
+}
 
 const t = document.createElement("table");
 t.innerHTML = "<thead><tr><th class='n'>Layer</th><th>Kind</th><th class='n'>bpw</th><th class='n'>rfn</th><th class='n'>SQNR dB</th><th class='n'>Minutes</th><th class='n'>Host GB</th></tr></thead>";

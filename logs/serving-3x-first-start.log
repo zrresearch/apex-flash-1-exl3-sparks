@@ -1,0 +1,105 @@
+
+
+  Mia's TensorFold Start Script
+  local/apex-flash-1-EXL3-4bpw-mcg · 3 x DGX Spark · 8 at once · 1048576-token window · fp8 KV · dflash2 drafts · port 8888
+
+[1/5] Setup: image and checkpoint on all 3 Sparks
+[start.sh] Not ready yet: running scripts/prepare.sh (the first time this pulls the image, downloads ~166 GiB and copies both to the worker)
+[prepare.sh] Preflight checks on all 3 Sparks
+[prepare.sh] Link to worker 1: head <addr> <-> <addr>; RoCE rocep1s0f0,rocep1s0f1,roceP2p1s0f0,roceP2p1s0f1
+[prepare.sh] Link to worker 2: head <addr> <-> <addr>; RoCE rocep1s0f0,rocep1s0f1,roceP2p1s0f0,roceP2p1s0f1
+[prepare.sh] Disk: 747 GB free under /root/.cache/huggingface here, 1655 GB under /home/user/.cache/huggingface on worker 1, 1824 GB under /home/user/.cache/huggingface on worker 2
+[prepare.sh] Image tensorfold-glm53:v0.6.0 already built with patches a1897d591f70 (use --rebuild to force)
+tensorfold 0.6.0
+[prepare.sh] Image tensorfold-glm53:v0.6.0 identical on all 3 Sparks
+[prepare.sh] Downloading local/apex-flash-1-EXL3-4bpw-mcg @ local-20 into /root/.cache/huggingface/hub (resumes if interrupted)
+[90mHint: A new version of huggingface_hub (2.4.0) is available! You are using version 1.25.1.
+To update, run: hf update[0m
+[1m[31mError: Model 'local/apex-flash-1-EXL3-4bpw-mcg' not found.
+If the repo is private, make sure you are authenticated and your token has the required permissions.
+If the repo does not exist, create it with: hf repos create local/apex-flash-1-EXL3-4bpw-mcg[0m
+[90mHint: set HF_DEBUG=1 as environment variable for full traceback.[0m
+[prepare.sh] WARN: local/apex-flash-1-EXL3-4bpw-mcg: could not reach Hugging Face; using the snapshot already here (local-20)
+[prepare.sh] Checkpoint: /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 (164G)
+[prepare.sh] Downloading incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e into /root/.cache/huggingface/hub (resumes if interrupted)
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 814.71it/s]
+[prepare.sh] Checkpoint: /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a (2.2G)
+[prepare.sh] Verifying checkpoint with tensorfold info
+model_type   glm5_next
+family       GLM-5.3-Flash (tensorfold.families.glm5_next)
+engine       MLX lane engine, CUDA engine
+kernels      glm/flash/v1
+num_hidden_layers 45
+hidden_size  4096
+num_experts_per_tok 8
+n_routed_experts 288
+vocab_size   154880
+max_position_embeddings 1048576
+quantization exl3 (4-bit)
+runs on      NVIDIA GPUs (CUDA)
+sampling     {'temperature': 1.0, 'top_p': 0.95}
+[tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+[prepare.sh] Copying local/apex-flash-1-EXL3-4bpw-mcg @ local-20 to worker 1 (user@<addr>) over the Sparks' link (~164 GB to send, resumes)
+[prepare.sh] Worker 1 has incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e
+[prepare.sh] Copying local/apex-flash-1-EXL3-4bpw-mcg @ local-20 to worker 2 (user@<addr>) over the Sparks' link (~164 GB to send, resumes)
+[prepare.sh] Worker 2 has incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e
+[prepare.sh] Done: all 3 Sparks are ready. Start the server with ./start-tp3.sh (port 8888).
+[prepare.sh] The first start compiles CUDA kernels for GB10 (a few minutes); they are cached in /root/.cache/tensorfold-glm53/<image hash> here and under ~/.cache/tensorfold-glm53 on each worker (a folder per image).
+[2/5] Checks: arguments, link, previous server, port, memory
+[start.sh] Rendezvous: <addr>:29551; NCCL bootstrap over <netdev> <netdev> <netdev> (rank 0 to 2)
+[start.sh]   rank 0: RoCE rocep1s0f0,rocep1s0f1,roceP2p1s0f0,roceP2p1s0f1 (GID 5)
+[start.sh]   rank 1: RoCE rocep1s0f0,rocep1s0f1,roceP2p1s0f0,roceP2p1s0f1 (GID 5), link to the head <addr> <-> <addr>
+[start.sh]   rank 2: RoCE rocep1s0f0,rocep1s0f1,roceP2p1s0f0,roceP2p1s0f1 (GID 5), link to the head <addr> <-> <addr>
+[start.sh] Arguments OK, port 8888 free, 116 GiB memory available here, 116 on rank 1, 116 on rank 2
+[3/5] Launch: container glm53-flash-tf, ranks 2 to 1 on the workers, then rank 0 here
+[start.sh] Rank 2 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 3 --rank 2 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 1 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 3 --rank 1 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 0 here: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 3 --rank 0 --master <addr> --master-port 29551 --name apex-flash-1-3x --host 0.0.0.0 --port 8888 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+
+=============
+== PyTorch ==
+=============
+
+NVIDIA Release 26.07 (build 373437299)
+PyTorch Version 2.13.0a0+9186a08
+Container image Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+Copyright (c) 2014-2024 Facebook Inc.
+Copyright (c) 2011-2014 Idiap Research Institute (Ronan Collobert)
+Copyright (c) 2012-2014 Deepmind Technologies    (Koray Kavukcuoglu)
+Copyright (c) 2011-2012 NEC Laboratories America (Koray Kavukcuoglu)
+Copyright (c) 2011-2013 NYU                      (Clement Farabet)
+Copyright (c) 2006-2010 NEC Laboratories America (Ronan Collobert, Leon Bottou, Iain Melvin, Jason Weston)
+Copyright (c) 2006      Idiap Research Institute (Samy Bengio)
+Copyright (c) 2001-2004 Idiap Research Institute (Ronan Collobert, Samy Bengio, Johnny Mariethoz)
+Copyright (c) 2015      Google Inc.
+Copyright (c) 2015      Yangqing Jia
+Copyright (c) 2013-2016 The Caffe contributors
+All rights reserved.
+
+Various files include modifications (c) NVIDIA CORPORATION & AFFILIATES.  All rights reserved.
+
+GOVERNING TERMS: The software and materials are governed by the NVIDIA Software License Agreement
+(found at https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-software-license-agreement/)
+and the Product-Specific Terms for NVIDIA AI Products
+(found at https://www.nvidia.com/en-us/agreements/enterprise-software/product-specific-terms-for-ai-products/).
+
+NOTE: CUDA Forward Compatibility mode ENABLED.
+  Using CUDA 13.3 driver version 610.43.02 with kernel driver version 580.178.04.
+  See https://docs.nvidia.com/deploy/cuda-compatibility/ for details.
+
+[tensorfold] EXL3 support is experimental: replies are exact, but the MLX checkpoint (Vontra/GLM-5.3-Flash-MLX-4bit-MTP) is tested more and runs faster (docs/recipes/glm-5.3-flash.md)
+[tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+[tensorfold] loading apex-flash-1-3x: GLM-5.3-Flash (glm5_next) on CUDA, rank 0 of 3
+[tensorfold] CUDA rank 0 startup estimate 67.75 GiB within 95.52 GiB; native 1048576, allocated prompt/reply window 1048576, cache slots 1048592
+[tensorfold] the checkpoint's MTP head is not loaded (TF_GLM_MTP=auto): DFlash2 drafts every request
+[tensorfold] L2 prefetch in decode windows (bulk, up to 8 MiB a site): a 45 sites 8.0 MiB, f 45 sites 8.0 MiB, o 45 sites 6.6 MiB
+[tensorfold] prompt chunks' hyper-connections: rows split between the ranks, exchanges by send/receive on a second stream in 2 pieces, the next block's front on own rows meanwhile (chunks of 64+ rows)
+[tensorfold] verify windows up to 16 rows, CUDA graphs for 1, 2, 3, 4, 5, 6, 7, 8, 16 rows (TF_GLM_MAX_ROWS, TF_GLM_WIDE_GRAPHS); copies from the reply match 16 tokens (TF_GLM_COPY_REPLY_MATCH)
+[tensorfold] TF_GLM_KV=fp8: the DSA latent cache and the indexer's pooled keys as e4m3 rows with a power-of-two scale each (lossy; drafted replies still equal serial ones)
+[tensorfold] prompt chunks and kept prompt states on a 64-token grid (TF_GLM_PROMPT_GRID)
+[tensorfold] TF_GLM_KDA_CHUNKED=1: KDA prompt chunks in chunked (WY) form, 32-row sub-chunks (close to the serial kernel, not its bits; decode keeps the serial kernel)
+[tensorfold] shared-prefix prompt states: kept where a prompt stops sharing another and at the end of its system block, when they add 256+ tokens (TF_GLM_SHARED_PREFIX)
+[tensorfold] drafter timings (ms, fastest of 7): {'v1': 21.94, 'v2': 27.22, 'v3': 31.68, 'v4': 37.13, 'v5': 40.8, 'v6': 44.49, 'v7': 46.53, 'v8': 47.81, 'block': 3.4, 'taps8': 0.36}
+[tensorfold] drafter costs (ms): verify 21.9 28.1 31.8 35.5 39.2 42.9 46.5 50.2; DFlash2 block 3.40 (+0.046 a tap row)
+[tensorfold] --parallel 8: up to 8 requests decode together, their caches in one pool of 5101568 tokens (each up to 1048576), their verify windows 64 rows together (TF_GLM_MULTI_WINDOW); DFlash2 drafts, prompt chunks of 1024 rows while others decode (TF_GLM_FILL_ROWS, TF_GLM_FILL_SHARE 0.5); waiting prompts share prompt chunks (TF_GLM_MULTI_PREFILL); sampler streams, depth policy, async messages off, lone stream on the one-stream graphs off; prompt layer slices target 200 ms
+[tensorfold] serving apex-flash-1-3x at http://0.0.0.0:8888/v1 on CUDA, rank 0 of 3 (sampling: temperature 1.0, top_p 0.95; drafts: on; prompts: bf16 activations; context: 1048576; loaded in 89.2s)
