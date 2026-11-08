@@ -173,8 +173,9 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
     <span class="label">SparkMan field report · Fleet notes no. 1</span>
     <span class="chip ok">Conversion complete</span>
     <span class="chip ok">Serving on 2 and 3 nodes</span>
-    <span class="chip ok">2-node benchmarks done</span>
-    <span class="chip warn">3-node benchmarks running · 4 nodes pending</span>
+    <span class="chip ok">2- and 3-node benchmarks done</span>
+    <span class="chip ok">Matches base model on general suite</span>
+    <span class="chip warn">4 nodes starting · security evaluation pending</span>
   </div>
   <h1>Apex Flash on Four Sparks</h1>
   <p class="sub">Building a 4-bit EXL3 quantization of a 321B security post-train of GLM-5.3-Flash on one DGX Spark, and serving it with TensorFold across two, three and four GB10 nodes.</p>
@@ -424,7 +425,36 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
   <div class="tbl" id="t-quality"></div>
   <div class="prose">
     <p>Quality on two nodes averages 93.3% across the eight categories, with no reply cut off at its token limit. Reasoning, arithmetic, state tracking and long recall are perfect; instruction following (72%) is the weak category, consistent with the strict-format failures the SloptimistPrime build reports. This is a general suite: it measures whether the 4-bit build is sound, not whether Cantina's security training survived. The base-model comparison below and a security-specific evaluation address that.</p>
-    <p><b>Tool use.</b> tool-eval-bench's quick suite on two nodes scored <b>100</b>: 15 of 15 scenarios passed, three in each of categories A–E.</p>
+    <p><b>Tool use.</b> tool-eval-bench's quick suite scored <b>100</b> in every configuration: 15 of 15 scenarios passed, three in each of categories A–E.</p>
+
+    <h3>7.1 Three nodes</h3>
+    <p>On the ring, apex decodes faster at every concurrency: one code stream at 91 tok/s (+21% over two nodes) and one prose stream at 53 (+16%). The ring decodes 8 requests at a time, so 8 streams no longer queue: 196 tok/s total on code and 141 on prose, with first tokens under 0.3 s. Prefill rises to about 2,000–2,120 tok/s, and a 256K prompt waits 2.4 minutes instead of 2.6.</p>
+    <p>Its quality average fell to 87.5%, almost entirely from long recall, a category of two items where one reply ran into its token limit. The ring runs with a 16,384-token thinking budget and the loop guard, the pair without either, so the two quality runs are not like for like; the comparison that is follows.</p>
+
+    <h3>7.2 apex against its base model</h3>
+    <p>The base GLM-5.3-Flash ran the same suite on the same ring, through the same recipe commit, with Mia's own 4-bit checkpoint of the same layout and the same flags. Only the weights differ.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 10.</b> Item-by-item agreement on the quality suite, apex 4-bit against base GLM-5.3-Flash 4-bit, both on three nodes.</caption>
+      <thead><tr><th>Category</th><th class="n">Items</th><th class="n">Both right</th><th class="n">apex only</th><th class="n">base only</th><th class="n">Neither</th></tr></thead>
+      <tbody>
+        <tr><td>qa</td><td class="n">150</td><td class="n">124</td><td class="n">6</td><td class="n">2</td><td class="n">18</td></tr>
+        <tr><td>reasoning</td><td class="n">40</td><td class="n">40</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td>arithmetic</td><td class="n">40</td><td class="n">40</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td>state</td><td class="n">40</td><td class="n">39</td><td class="n">0</td><td class="n">1</td><td class="n">0</td></tr>
+        <tr><td>gsm8k</td><td class="n">200</td><td class="n">195</td><td class="n">0</td><td class="n">0</td><td class="n">5</td></tr>
+        <tr><td>mmlu</td><td class="n">285</td><td class="n">242</td><td class="n">3</td><td class="n">10</td><td class="n">30</td></tr>
+        <tr><td>instruction</td><td class="n">40</td><td class="n">28</td><td class="n">5</td><td class="n">1</td><td class="n">6</td></tr>
+        <tr><td>long-recall</td><td class="n">2</td><td class="n">1</td><td class="n">0</td><td class="n">1</td><td class="n">0</td></tr>
+        <tr><td><b>All</b></td><td class="n"><b>797</b></td><td class="n"><b>709</b></td><td class="n"><b>14</b></td><td class="n"><b>15</b></td><td class="n"><b>59</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>The two models disagree on 29 of 797 items, 14 one way and 15 the other: no measurable difference (an exact McNemar test on 14 against 15 gives p ≈ 1). The headline averages, 87.5 against 92.8, differ only because long recall has two items and counts as one of eight categories; without it the two average 92.9 and 91.8. apex is ahead on instruction following (33 against 29) and short QA (130 against 126); the base is ahead on MMLU (252 against 245). Reasoning lengths are similar, with apex writing 10–17% more on reasoning and arithmetic items.</p>
+    <p>Decode speed matches within a few percent, as expected for identical architectures and layouts. Prefill is consistently 8–21% slower for apex (2,121 against 2,338 tok/s at 32K). The cause is not established; candidates are differences between the two checkpoints' exact tensor packing and the order of runs on the node.</p>
+    <p><b>What this shows.</b> The locally built 4-bit checkpoint is sound: on general knowledge, reasoning, arithmetic and tool use it matches the base model built the same way by Mia. It does not show whether apex's security post-training survived quantization, because nothing in this suite tests security work. That needs the evaluation in Section 9.</p>
   </div>
 </section>
 
@@ -446,9 +476,9 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
       <thead><tr><th>Measurement</th><th>Groups</th><th>Compared with</th><th>State</th></tr></thead>
       <tbody>
         <tr><td>Loads and serves</td><td>2, 3, 4 nodes</td><td>none</td><td>2 and 3 done</td></tr>
-        <tr><td>Decode and prefill speed, 1–8 concurrent requests</td><td>2, 3, 4 nodes</td><td>each other; GLM-5.3-Flash TensorFold on the ring</td><td>2 done, 3 running</td></tr>
+        <tr><td>Decode and prefill speed, 1–8 concurrent requests</td><td>2, 3, 4 nodes</td><td>each other; GLM-5.3-Flash TensorFold on the ring</td><td>2 and 3 done; 4 starting</td></tr>
         <tr><td>Largest KV pool</td><td>2, 3, 4 nodes</td><td>each other</td><td>2 and 3 recorded</td></tr>
-        <tr><td>Quality and tool use on SparkMan's suite</td><td>2, 3 nodes</td><td>base GLM-5.3-Flash on the ring, same quantization and flags</td><td>2 done, 3 running</td></tr>
+        <tr><td>Quality and tool use on SparkMan's suite</td><td>2, 3 nodes</td><td>base GLM-5.3-Flash on the ring, same quantization and flags</td><td>done: no difference (Table 10)</td></tr>
         <tr><td>A security-specific evaluation</td><td>one group</td><td>base GLM-5.3-Flash</td><td>to design</td></tr>
         <tr><td>If apex shows no gain: higher expert bitrate (5–6 bpw)</td><td>3 or 4 nodes</td><td>the 4-bit build</td><td>conditional</td></tr>
       </tbody>
@@ -523,7 +553,7 @@ docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out
   </ol>
 </section>
 
-<footer>Last updated 8 November 2026: two-node benchmarks complete; three nodes serving and benchmarking; base-model and four-node runs to follow. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
+<footer>Last updated 8 November 2026: two- and three-node benchmarks and the base-model comparison complete; four-node run starting. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
 </div>
 
 <script>
@@ -567,6 +597,20 @@ const BENCH = {
               prose: [[1,45.7,45.7,170],[2,64.3,32.5,274],[4,86.0,21.8,270],[8,85.5,21.6,23520]] },
     prefill: [[4111,1097,3747],[8205,1794,4573],[16397,1845,8887],[32782,1882,17419],[65552,1854,35351],[131086,1794,73072],[262160,1665,157436]],
     quality: { overall: 93.3, cats: { qa:[133,150], reasoning:[40,40], arithmetic:[40,40], state:[40,40], gsm8k:[194,200], mmlu:[251,285], instruction:[29,40], "long-recall":[2,2] } },
+    tooleval: 100,
+  },
+  "apex 3 nodes": {
+    decode: { code: [[1,91.1,91.1,139],[2,127.3,63.8,234],[4,157.4,41.2,396],[8,196.0,26.5,287]],
+              prose: [[1,52.9,52.9,140],[2,73.9,37.5,204],[4,103.1,26.3,226],[8,141.3,18.0,299]] },
+    prefill: [[4110,1725,2382],[8208,2017,4070],[16397,2105,7790],[32780,2121,15457],[65553,2091,31351],[131084,2005,65384],[262159,1854,141412]],
+    quality: { overall: 87.5, cats: { qa:[130,150], reasoning:[40,40], arithmetic:[40,40], state:[39,40], gsm8k:[195,200], mmlu:[245,285], instruction:[33,40], "long-recall":[1,2] } },
+    tooleval: 100,
+  },
+  "GLM base 3 nodes": {
+    decode: { code: [[1,84.6,84.6,133],[2,115.8,60.0,218],[4,157.8,40.7,220],[8,213.1,27.9,512]],
+              prose: [[1,51.8,51.8,134],[2,75.1,38.0,205],[4,103.3,26.4,220],[8,139.4,17.8,273]] },
+    prefill: [[4113,2189,1879],[8203,2218,3699],[16402,2331,7036],[32782,2338,14022],[65552,2303,28462],[131089,2208,59365],[262159,2019,129868]],
+    quality: { overall: 92.8, cats: { qa:[126,150], reasoning:[40,40], arithmetic:[40,40], state:[40,40], gsm8k:[195,200], mmlu:[252,285], instruction:[29,40], "long-recall":[2,2] } },
     tooleval: 100,
   },
 };

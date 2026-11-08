@@ -16,8 +16,8 @@ data and configuration behind it.
 | Layout check against Mia's TensorFold checkpoint | pass, 150,226 tensors, dtypes match |
 | Serving, 2 nodes | live: TP=2, 4 streams, 1M window, vision off |
 | Serving, 3 nodes | live: TP=3, 8 streams, 1M window, vision off |
-| Serving, 4 nodes (switch, Mia `tp4` branch) | planned |
-| Speed and quality benchmarks | 2 nodes done; 3 nodes running |
+| Serving, 4 nodes (switch, Mia `tp4` branch) | first start in progress |
+| Speed and quality benchmarks | 2 and 3 nodes done; base GLM-5.3-Flash compared (no difference on the general suite) |
 
 ## Layout
 
