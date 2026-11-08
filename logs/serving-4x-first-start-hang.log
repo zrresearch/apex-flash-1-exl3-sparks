@@ -1,0 +1,436 @@
+
+
+  Mia's TensorFold Start Script
+  local/apex-flash-1-EXL3-4bpw-mcg · 4 x DGX Spark · 8 at once · 1048576-token window · fp8 KV · dflash2 drafts · port 8888
+
+[1/5] Setup: image and checkpoint on all 4 Sparks
+[start.sh] Not ready yet: running scripts/prepare.sh (the first time this pulls the image, downloads ~166 GiB and copies both to the worker)
+[prepare.sh] Preflight checks on all 4 Sparks
+[prepare.sh] Link to worker 1: head <addr> <-> <addr>; RoCE mlx5_0,mlx5_2
+[prepare.sh] Link to worker 2: head <addr> <-> <addr>; RoCE rocep1s0f0,roceP2p1s0f0
+[prepare.sh] Link to worker 3: head <addr> <-> <addr>; RoCE rocep1s0f0,roceP2p1s0f0
+[prepare.sh] Disk: 713 GB free under /home/user/.cache/huggingface here, 3086 GB under /home/user/.cache/huggingface on worker 1, 3132 GB under /home/user/.cache/huggingface on worker 2, 3119 GB under /home/user/.cache/huggingface on worker 3
+[prepare.sh] Pulling the prebuilt image ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8 (PULL=0 builds instead)
+ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8: Pulling from miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold
+c772ddc80b61: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+b0bd208fb06a: Pulling fs layer
+0ecb6de639ce: Pulling fs layer
+9f5a51a63d2c: Pulling fs layer
+fefff4bbbabd: Pulling fs layer
+61ee9db593ea: Pulling fs layer
+4447a17025d9: Pulling fs layer
+0ecb6de639ce: Waiting
+9f5a51a63d2c: Waiting
+fefff4bbbabd: Waiting
+61ee9db593ea: Waiting
+9afa6703f2c2: Pulling fs layer
+f0ad8f472901: Pulling fs layer
+9afa6703f2c2: Waiting
+4447a17025d9: Waiting
+34be791b8780: Pulling fs layer
+1dc62458ad02: Pulling fs layer
+3dfa91366c34: Pulling fs layer
+f0ad8f472901: Waiting
+6af4f0233830: Pulling fs layer
+34be791b8780: Waiting
+043fb6406ac9: Pulling fs layer
+1dc62458ad02: Waiting
+3dfa91366c34: Waiting
+6af4f0233830: Waiting
+e545e0799b9f: Pulling fs layer
+0f4a9e6431b7: Pulling fs layer
+043fb6406ac9: Waiting
+e545e0799b9f: Waiting
+31124fc0d3c2: Pulling fs layer
+7b1219d3bec1: Pulling fs layer
+0f4a9e6431b7: Waiting
+1e84aff5f694: Pulling fs layer
+44ba327b5f8a: Pulling fs layer
+31124fc0d3c2: Waiting
+72df078234af: Pulling fs layer
+7b1219d3bec1: Waiting
+44ba327b5f8a: Waiting
+1e84aff5f694: Waiting
+4905e5367aae: Pulling fs layer
+69a763e1165e: Pulling fs layer
+d2f4a9064b95: Pulling fs layer
+e6b6a925ccae: Pulling fs layer
+331aca653406: Pulling fs layer
+72df078234af: Waiting
+645cdaf8d947: Pulling fs layer
+4905e5367aae: Waiting
+d2f4a9064b95: Waiting
+69a763e1165e: Waiting
+e6b6a925ccae: Waiting
+331aca653406: Waiting
+c1883178a8c3: Pulling fs layer
+512a808022ef: Pulling fs layer
+645cdaf8d947: Waiting
+c1883178a8c3: Waiting
+a7aab27a09ec: Pulling fs layer
+5975c64a294c: Pulling fs layer
+4e82c8a39c97: Pulling fs layer
+410058a2fbc3: Pulling fs layer
+1e9bb08bd607: Pulling fs layer
+20672cc2b92c: Pulling fs layer
+512a808022ef: Waiting
+5975c64a294c: Waiting
+e45fef730e42: Pulling fs layer
+1d8889397be9: Pulling fs layer
+4e82c8a39c97: Waiting
+f95e18f362f1: Pulling fs layer
+410058a2fbc3: Waiting
+1e9bb08bd607: Waiting
+20672cc2b92c: Waiting
+5748398cf797: Pulling fs layer
+e45fef730e42: Waiting
+1d8889397be9: Waiting
+a7aab27a09ec: Waiting
+5add1e4bcb79: Pulling fs layer
+5748398cf797: Waiting
+7f8640f7cd7b: Pulling fs layer
+f95e18f362f1: Waiting
+5add1e4bcb79: Waiting
+7f8640f7cd7b: Waiting
+dd2c3573bfa7: Pulling fs layer
+dd2c3573bfa7: Waiting
+ec60c1632083: Pulling fs layer
+cfc35d1c232e: Pulling fs layer
+efb1f9c37d01: Pulling fs layer
+f2f796b3ac16: Pulling fs layer
+84a5b2df3662: Pulling fs layer
+01ae8d35a85a: Pulling fs layer
+5f61d4772303: Pulling fs layer
+02280d2b62f0: Pulling fs layer
+ca1255d1f22e: Pulling fs layer
+ec60c1632083: Waiting
+046d871a74c0: Pulling fs layer
+99010c726a1c: Pulling fs layer
+cfc35d1c232e: Waiting
+7d0b5d532fcc: Pulling fs layer
+efb1f9c37d01: Waiting
+01ae8d35a85a: Waiting
+99010c726a1c: Waiting
+046d871a74c0: Waiting
+5f61d4772303: Waiting
+7d0b5d532fcc: Waiting
+ca1255d1f22e: Waiting
+02280d2b62f0: Waiting
+84a5b2df3662: Waiting
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+b0bd208fb06a: Verifying Checksum
+b0bd208fb06a: Download complete
+c772ddc80b61: Verifying Checksum
+c772ddc80b61: Download complete
+0ecb6de639ce: Verifying Checksum
+0ecb6de639ce: Download complete
+61ee9db593ea: Verifying Checksum
+61ee9db593ea: Download complete
+4447a17025d9: Download complete
+9afa6703f2c2: Verifying Checksum
+9afa6703f2c2: Download complete
+c772ddc80b61: Pull complete
+4f4fb700ef54: Pull complete
+b0bd208fb06a: Pull complete
+0ecb6de639ce: Pull complete
+fefff4bbbabd: Verifying Checksum
+fefff4bbbabd: Download complete
+34be791b8780: Verifying Checksum
+34be791b8780: Download complete
+1dc62458ad02: Verifying Checksum
+1dc62458ad02: Download complete
+3dfa91366c34: Download complete
+6af4f0233830: Verifying Checksum
+6af4f0233830: Download complete
+9f5a51a63d2c: Verifying Checksum
+9f5a51a63d2c: Download complete
+f0ad8f472901: Verifying Checksum
+f0ad8f472901: Download complete
+043fb6406ac9: Verifying Checksum
+043fb6406ac9: Download complete
+31124fc0d3c2: Verifying Checksum
+31124fc0d3c2: Download complete
+9f5a51a63d2c: Pull complete
+fefff4bbbabd: Pull complete
+61ee9db593ea: Pull complete
+4447a17025d9: Pull complete
+9afa6703f2c2: Pull complete
+f0ad8f472901: Pull complete
+34be791b8780: Pull complete
+1dc62458ad02: Pull complete
+3dfa91366c34: Pull complete
+6af4f0233830: Pull complete
+e545e0799b9f: Verifying Checksum
+e545e0799b9f: Download complete
+1e84aff5f694: Verifying Checksum
+1e84aff5f694: Download complete
+44ba327b5f8a: Verifying Checksum
+44ba327b5f8a: Download complete
+043fb6406ac9: Pull complete
+e545e0799b9f: Pull complete
+72df078234af: Verifying Checksum
+72df078234af: Download complete
+4905e5367aae: Verifying Checksum
+4905e5367aae: Download complete
+69a763e1165e: Verifying Checksum
+69a763e1165e: Download complete
+d2f4a9064b95: Verifying Checksum
+d2f4a9064b95: Download complete
+e6b6a925ccae: Verifying Checksum
+e6b6a925ccae: Download complete
+331aca653406: Download complete
+645cdaf8d947: Verifying Checksum
+645cdaf8d947: Download complete
+0f4a9e6431b7: Verifying Checksum
+0f4a9e6431b7: Download complete
+512a808022ef: Verifying Checksum
+512a808022ef: Download complete
+a7aab27a09ec: Verifying Checksum
+a7aab27a09ec: Download complete
+c1883178a8c3: Verifying Checksum
+c1883178a8c3: Download complete
+4e82c8a39c97: Verifying Checksum
+4e82c8a39c97: Download complete
+410058a2fbc3: Verifying Checksum
+410058a2fbc3: Download complete
+7b1219d3bec1: Verifying Checksum
+7b1219d3bec1: Download complete
+5975c64a294c: Verifying Checksum
+5975c64a294c: Download complete
+e45fef730e42: Verifying Checksum
+e45fef730e42: Download complete
+20672cc2b92c: Verifying Checksum
+20672cc2b92c: Download complete
+f95e18f362f1: Verifying Checksum
+f95e18f362f1: Download complete
+5748398cf797: Verifying Checksum
+5748398cf797: Download complete
+5add1e4bcb79: Download complete
+7f8640f7cd7b: Verifying Checksum
+7f8640f7cd7b: Download complete
+dd2c3573bfa7: Verifying Checksum
+dd2c3573bfa7: Download complete
+ec60c1632083: Verifying Checksum
+ec60c1632083: Download complete
+cfc35d1c232e: Verifying Checksum
+cfc35d1c232e: Download complete
+1e9bb08bd607: Download complete
+0f4a9e6431b7: Pull complete
+1d8889397be9: Verifying Checksum
+1d8889397be9: Download complete
+efb1f9c37d01: Verifying Checksum
+efb1f9c37d01: Download complete
+84a5b2df3662: Verifying Checksum
+84a5b2df3662: Download complete
+5f61d4772303: Verifying Checksum
+5f61d4772303: Download complete
+02280d2b62f0: Verifying Checksum
+02280d2b62f0: Download complete
+ca1255d1f22e: Download complete
+046d871a74c0: Verifying Checksum
+046d871a74c0: Download complete
+99010c726a1c: Verifying Checksum
+99010c726a1c: Download complete
+7d0b5d532fcc: Verifying Checksum
+7d0b5d532fcc: Download complete
+31124fc0d3c2: Pull complete
+01ae8d35a85a: Verifying Checksum
+01ae8d35a85a: Download complete
+f2f796b3ac16: Verifying Checksum
+f2f796b3ac16: Download complete
+7b1219d3bec1: Pull complete
+1e84aff5f694: Pull complete
+44ba327b5f8a: Pull complete
+72df078234af: Pull complete
+4905e5367aae: Pull complete
+69a763e1165e: Pull complete
+d2f4a9064b95: Pull complete
+e6b6a925ccae: Pull complete
+331aca653406: Pull complete
+645cdaf8d947: Pull complete
+c1883178a8c3: Pull complete
+512a808022ef: Pull complete
+a7aab27a09ec: Pull complete
+5975c64a294c: Pull complete
+4e82c8a39c97: Pull complete
+410058a2fbc3: Pull complete
+1e9bb08bd607: Pull complete
+20672cc2b92c: Pull complete
+e45fef730e42: Pull complete
+1d8889397be9: Pull complete
+f95e18f362f1: Pull complete
+5748398cf797: Pull complete
+5add1e4bcb79: Pull complete
+7f8640f7cd7b: Pull complete
+dd2c3573bfa7: Pull complete
+ec60c1632083: Pull complete
+cfc35d1c232e: Pull complete
+efb1f9c37d01: Pull complete
+f2f796b3ac16: Pull complete
+84a5b2df3662: Pull complete
+01ae8d35a85a: Pull complete
+5f61d4772303: Pull complete
+02280d2b62f0: Pull complete
+ca1255d1f22e: Pull complete
+046d871a74c0: Pull complete
+99010c726a1c: Pull complete
+7d0b5d532fcc: Pull complete
+Digest: sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8
+Status: Downloaded newer image for ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8
+ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8
+[prepare.sh] Using ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8 as tensorfold-glm53:v0.6.0
+[prepare.sh] Image tensorfold-glm53:v0.6.0 already built with patches 7a37454d3238 (use --rebuild to force)
+tensorfold 0.6.0
+[prepare.sh] Using ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8 as tensorfold-glm53:v0.6.0 on worker 1 (user@<addr>)
+[prepare.sh] Using ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8 as tensorfold-glm53:v0.6.0 on worker 2 (user@<addr>)
+[prepare.sh] Using ghcr.io/miaai-lab/glm-5.3-flash-exl3-2x-dgx-sparks-tensorfold@sha256:eb17e092fa56ea23ca385c3aba0a4250d0cb46c705b9455f2e4c29d1ca4847e8 as tensorfold-glm53:v0.6.0 on worker 3 (user@<addr>)
+[prepare.sh] Image tensorfold-glm53:v0.6.0 identical on all 4 Sparks
+[prepare.sh] Downloading local/apex-flash-1-EXL3-4bpw-mcg @ local-20 into /home/user/.cache/huggingface/hub (resumes if interrupted)
+[90mHint: A new version of huggingface_hub (2.4.0) is available! You are using version 2.3.0.
+To update, run: hf update[0m
+[90mHint: The `hf-cli` skill is not installed. Run `hf skills add -g` to teach your AI agents how to use the `hf` CLI.[0m
+[1m[31mError: Model 'local/apex-flash-1-EXL3-4bpw-mcg' not found.
+If the repo is private, make sure you are authenticated and your token has the required permissions.
+If the repo does not exist, create it with: hf repos create local/apex-flash-1-EXL3-4bpw-mcg[0m
+[90mHint: set HF_DEBUG=1 as environment variable for full traceback.[0m
+[prepare.sh] WARN: local/apex-flash-1-EXL3-4bpw-mcg: could not reach Hugging Face; using the snapshot already here (local-20)
+[prepare.sh] Checkpoint: /home/user/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 (164G)
+[prepare.sh] Downloading incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e into /home/user/.cache/huggingface/hub (resumes if interrupted)
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 2864.57it/s]
+[prepare.sh] Checkpoint: /home/user/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a (2.2G)
+[prepare.sh] Verifying checkpoint with tensorfold info
+model_type   glm5_next
+family       GLM-5.3-Flash (tensorfold.families.glm5_next)
+engine       MLX lane engine, CUDA engine
+kernels      glm/flash/v1
+num_hidden_layers 45
+hidden_size  4096
+num_experts_per_tok 8
+n_routed_experts 288
+vocab_size   154880
+max_position_embeddings 1048576
+quantization exl3 (4-bit)
+runs on      NVIDIA GPUs (CUDA)
+sampling     {'temperature': 1.0, 'top_p': 0.95}
+[tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+[prepare.sh] Copying local/apex-flash-1-EXL3-4bpw-mcg @ local-20 to worker 1 (user@<addr>) over the Sparks' link (~164 GB to send, resumes)
+[prepare.sh] Copying incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e to worker 1 (user@<addr>) over the Sparks' link (~3 GB to send, resumes)
+[prepare.sh] Copying local/apex-flash-1-EXL3-4bpw-mcg @ local-20 to worker 2 (user@<addr>) over the Sparks' link (~164 GB to send, resumes)
+[prepare.sh] Copying incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e to worker 2 (user@<addr>) over the Sparks' link (~3 GB to send, resumes)
+[prepare.sh] Copying local/apex-flash-1-EXL3-4bpw-mcg @ local-20 to worker 3 (user@<addr>) over the Sparks' link (~164 GB to send, resumes)
+[prepare.sh] Copying incoai/GLM-5.3-Flash-DFlash2 @ bf582e4e to worker 3 (user@<addr>) over the Sparks' link (~3 GB to send, resumes)
+[prepare.sh] Done: all 4 Sparks are ready. Start the server with ./start-tp4.sh (port 8888).
+[prepare.sh] The first start compiles CUDA kernels for GB10 (a few minutes); they are cached in /home/user/.cache/tensorfold-glm53/<image hash> here and under ~/.cache/tensorfold-glm53 on each worker (a folder per image).
+[2/5] Checks: arguments, link, previous server, port, memory
+[start.sh] Rendezvous: <addr>:29551; NCCL bootstrap over <netdev> <netdev> <netdev> <netdev> (rank 0 to 3)
+[start.sh]   rank 0: RoCE rocep1s0f0,roceP2p1s0f0 (GID 5)
+[start.sh]   rank 1: RoCE mlx5_0,mlx5_2 (GID 5), link to the head <addr> <-> <addr>
+[start.sh]   rank 2: RoCE rocep1s0f0,roceP2p1s0f0 (GID 5), link to the head <addr> <-> <addr>
+[start.sh]   rank 3: RoCE rocep1s0f0,roceP2p1s0f0 (GID 5), link to the head <addr> <-> <addr>
+[start.sh] Arguments OK, port 8888 free, 114 GiB memory available here, 116 on rank 1, 116 on rank 2, 116 on rank 3
+[3/5] Launch: container glm53-flash-tf, ranks 3 to 1 on the workers, then rank 0 here
+[start.sh] Rank 3 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 3 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 2 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 2 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 1 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 1 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 0 here: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 0 --master <addr> --master-port 29551 --name apex-flash-1-4x --host 0.0.0.0 --port 8888 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[4/5] Loading: a quarter of the weights on each Spark, rank 0 the most (2-6 min; the very first start also compiles CUDA kernels)
+  │ GOVERNING TERMS: The software and materials are governed by the NVIDIA Software License Agreement
+  │ (found at https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-software-license-agreement/)
+  │ and the Product-Specific Terms for NVIDIA AI Products
+  │ (found at https://www.nvidia.com/en-us/agreements/enterprise-software/product-specific-terms-for-ai-products/).
+  │ [tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+  │ [tensorfold] loading apex-flash-1-4x: GLM-5.3-Flash (glm5_next) on CUDA, rank 0 of 4
+  ⋯ 17s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 35s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 49s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 63s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 77s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 92s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 109s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 124s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 138s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 152s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 169s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 184s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 198s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 212s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 229s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 244s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 258s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 272s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 290s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 304s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 319s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 333s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 347s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 365s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 379s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 393s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 407s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 424s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 439s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 453s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 467s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 485s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 499s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 514s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 528s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 542s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 560s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 574s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 588s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 602s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 620s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 634s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 648s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 663s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 677s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 695s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 709s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 723s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 737s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 755s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 769s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 783s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 797s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 814s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 829s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 843s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 857s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 874s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 889s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 903s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 918s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 932s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 950s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 964s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 978s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 992s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1010s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1024s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1038s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1052s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1070s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1084s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1098s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1112s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1127s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1145s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1159s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1173s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1187s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1205s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1219s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1233s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1247s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1265s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1279s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1293s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1307s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1322s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1339s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1353s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1368s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 1382s elapsed, 0.3 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3

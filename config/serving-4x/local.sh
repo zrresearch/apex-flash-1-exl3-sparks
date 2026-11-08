@@ -12,3 +12,6 @@ MODEL_REVISION=local-20261108
 SERVED_NAME=apex-flash-1-4x
 # Vision off: apex ships its own chat template, whose media markers TensorFold cannot extend.
 VISION=0
+# NCCL bootstrap on the CX-7 fabric: the default (each node default-route netdev, the 10G fleet port) is firewalled to the
+# control plane only on the head, and the first start hung in NCCL init with every rank polling.
+SOCKET_IFNAME=<netdev>

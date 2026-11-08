@@ -1,0 +1,78 @@
+
+
+  Mia's TensorFold Start Script
+  local/apex-flash-1-EXL3-4bpw-mcg · 4 x DGX Spark · 8 at once · 1048576-token window · fp8 KV · dflash2 drafts · port 8888
+
+[1/5] Setup: image and checkpoint on all 4 Sparks
+[start.sh] Ready: tensorfold-glm53:v0.6.0 (patches 7a37454d3238) and local/apex-flash-1-EXL3-4bpw-mcg on all 4 Sparks
+[2/5] Checks: arguments, link, previous server, port, memory
+[start.sh] Rendezvous: <addr>:29551; NCCL bootstrap over <netdev> <netdev> <netdev> <netdev> (rank 0 to 3)
+[start.sh]   rank 0: RoCE rocep1s0f0,roceP2p1s0f0 (GID 5)
+[start.sh]   rank 1: RoCE mlx5_0,mlx5_2 (GID 5), link to the head <addr> <-> <addr>
+[start.sh]   rank 2: RoCE rocep1s0f0,roceP2p1s0f0 (GID 5), link to the head <addr> <-> <addr>
+[start.sh]   rank 3: RoCE rocep1s0f0,roceP2p1s0f0 (GID 5), link to the head <addr> <-> <addr>
+[start.sh] Arguments OK, port 8888 free, 114 GiB memory available here, 116 on rank 1, 116 on rank 2, 116 on rank 3
+[3/5] Launch: container glm53-flash-tf, ranks 3 to 1 on the workers, then rank 0 here
+[start.sh] Rank 3 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 3 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 2 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 2 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 1 on user@<addr>: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 1 --master <addr> --master-port 29551 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[start.sh] Rank 0 here: tensorfold serve /root/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108 --tp 4 --rank 0 --master <addr> --master-port 29551 --name apex-flash-1-4x --host 0.0.0.0 --port 8888 --drafter /root/.cache/huggingface/hub/models--incoai--GLM-5.3-Flash-DFlash2/snapshots/bf582e4eacc1810f76656d1811693ff6c6737d2a --context 1048576 --parallel 8 --max-tokens 32768 --thinking --thinking-budget 16384
+[4/5] Loading: a quarter of the weights on each Spark, rank 0 the most (2-6 min; the very first start also compiles CUDA kernels)
+  │ GOVERNING TERMS: The software and materials are governed by the NVIDIA Software License Agreement
+  │ (found at https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-software-license-agreement/)
+  │ and the Product-Specific Terms for NVIDIA AI Products
+  │ (found at https://www.nvidia.com/en-us/agreements/enterprise-software/product-specific-terms-for-ai-products/).
+  │ [tensorfold] GLM-5.3-Flash runs on two NVIDIA GPUs with 128 GB each (two DGX Sparks): pull it on both and serve with --tp 2 on both (docs/recipes/glm-5.3-flash.md)
+  │ [tensorfold] loading apex-flash-1-4x: GLM-5.3-Flash (glm5_next) on CUDA, rank 0 of 4
+  │ [tensorfold] building CUDA extension tensorfold_roce_v1 (first start after an install or update; later starts reuse it)
+  │ [tensorfold] all-gathers up to 1024 KiB over RoCE (rank 1 over rocep1s0f0+roceP2p1s0f0; rank 2 over rocep1s0f0+roceP2p1s0f0; rank 3 over rocep1s0f0+roceP2p1s0f0; b12x's RoCEnante transport), larger ones over NCCL
+  │ [tensorfold] CUDA rank 0 startup estimate 50.23 GiB within 91.90 GiB; native 1048576, allocated prompt/reply window 1048576, cache slots 1048592
+  ⋯ 17s elapsed, 0.4 GiB on the GPU here, 0.3 on rank 1, 0.3 on rank 2, 0.3 on rank 3
+  ⋯ 35s elapsed, 18.2 of ~50.23 GiB on the GPU here, 18.2 on rank 1, 16.6 on rank 2, 18.2 on rank 3
+  ⋯ 51s elapsed, 34.0 of ~50.23 GiB on the GPU here, 35.5 on rank 1, 35.8 on rank 2, 37.5 on rank 3
+  │ [tensorfold] the checkpoint's MTP head is not loaded (TF_GLM_MTP=auto): DFlash2 drafts every request
+  │ [tensorfold] building CUDA extension tensorfold_glm_l2pf_v2 (first start after an install or update; later starts reuse it)
+  ⋯ 62s elapsed, 39.4 of ~50.23 GiB on the GPU here, 39.4 on rank 1, 39.4 on rank 2, 39.4 on rank 3
+  │ [tensorfold] L2 prefetch in decode windows (bulk, up to 8 MiB a site): a 45 sites 6.5 MiB, f 45 sites 8.0 MiB, o 45 sites 5.4 MiB
+  │ [tensorfold] building CUDA extension tensorfold_glm_hc_v2 (first start after an install or update; later starts reuse it)
+  ⋯ 80s elapsed, 76.8 of ~50.23 GiB on the GPU here, 76.8 on rank 1, 76.8 on rank 2, 76.8 on rank 3
+  │ [tensorfold] building CUDA extension tensorfold_qmm_v4 (first start after an install or update; later starts reuse it)
+  ⋯ 94s elapsed, 76.8 of ~50.23 GiB on the GPU here, 76.8 on rank 1, 76.8 on rank 2, 76.8 on rank 3
+  │ [tensorfold] building CUDA extension tensorfold_glm_kda_v2 (first start after an install or update; later starts reuse it)
+  ⋯ 108s elapsed, 76.8 of ~50.23 GiB on the GPU here, 76.8 on rank 1, 76.8 on rank 2, 76.8 on rank 3
+  │ [tensorfold] building CUDA extension tensorfold_experts_v8 (first start after an install or update; later starts reuse it)
+  ⋯ 123s elapsed, 76.8 of ~50.23 GiB on the GPU here, 76.8 on rank 1, 76.8 on rank 2, 76.8 on rank 3
+  ⋯ 137s elapsed, 76.8 of ~50.23 GiB on the GPU here, 76.8 on rank 1, 76.8 on rank 2, 76.8 on rank 3
+  │ [tensorfold] building CUDA extension tensorfold_glm_exl3_v20 (first start after an install or update; later starts reuse it)
+  ⋯ 154s elapsed, 76.8 of ~50.23 GiB on the GPU here, 76.8 on rank 1, 76.8 on rank 2, 76.8 on rank 3
+  ⋯ 168s elapsed, 76.8 of ~50.23 GiB on the GPU here, 76.8 on rank 1, 76.8 on rank 2, 76.8 on rank 3
+  ⋯ 183s elapsed, 76.9 of ~50.23 GiB on the GPU here, 76.9 on rank 1, 76.9 on rank 2, 76.9 on rank 3
+  ⋯ 198s elapsed, 77.2 of ~50.23 GiB on the GPU here, 77.2 on rank 1, 77.2 on rank 2, 77.2 on rank 3
+  ⋯ 212s elapsed, 77.5 of ~50.23 GiB on the GPU here, 77.5 on rank 1, 77.5 on rank 2, 77.5 on rank 3
+  ⋯ 229s elapsed, 77.9 of ~50.23 GiB on the GPU here, 77.9 on rank 1, 77.9 on rank 2, 77.9 on rank 3
+  │ [tensorfold] prompt chunks' hyper-connections: rows split between the ranks, exchanges by send/receive on a second stream in 2 pieces, the next block's front on own rows meanwhile; DSA's replicated front (q_a / kv_a, the indexer, its top-k) on own rows, its outputs shared; chunks of 4096+ rows in two halves, one's exchanges under the other's compute (chunks of 64+ rows)
+  │ [tensorfold] verify windows up to 16 rows, CUDA graphs for 1, 2, 3, 4, 5, 6, 7, 8, 16 rows (TF_GLM_MAX_ROWS, TF_GLM_WIDE_GRAPHS); copies from the reply match 16 tokens (TF_GLM_COPY_REPLY_MATCH)
+  │ [tensorfold] TF_GLM_KV=fp8: the DSA latent cache and the indexer's pooled keys as e4m3 rows with a power-of-two scale each (lossy; drafted replies still equal serial ones)
+  │ [tensorfold] prompt chunks and kept prompt states on a 64-token grid (TF_GLM_PROMPT_GRID)
+  │ [tensorfold] TF_GLM_KDA_CHUNKED=1: KDA prompt chunks in chunked (WY) form, 32-row sub-chunks (close to the serial kernel, not its bits; decode keeps the serial kernel)
+  │ [tensorfold] shared-prefix prompt states: kept where a prompt stops sharing another and at the end of its system block, when they add 256+ tokens (TF_GLM_SHARED_PREFIX)
+  │ [tensorfold] building CUDA extension tensorfold_glm_kda_chunk (first start after an install or update; later starts reuse it)
+  ⋯ 244s elapsed, 78.2 of ~50.23 GiB on the GPU here, 78.2 on rank 1, 78.2 on rank 2, 78.2 on rank 3
+  │ [tensorfold] drafter timings (ms, fastest of 7): {'v1': 15.9, 'v2': 19.23, 'v3': 22.43, 'v4': 25.62, 'v5': 28.34, 'v6': 31.25, 'v7': 33.13, 'v8': 33.35, 'block': 2.09, 'taps8': 0.35}
+  │ [tensorfold] drafter costs (ms): verify 15.9 19.7 22.4 25.1 27.9 30.6 33.3 36.0; DFlash2 block 2.09 (+0.044 a tap row)
+  ⋯ 258s elapsed, 79.1 of ~50.23 GiB on the GPU here, 79.0 on rank 1, 79.0 on rank 2, 79.0 on rank 3
+  │ [tensorfold] --parallel 8: up to 8 requests decode together, their caches in one pool of 5834752 tokens (each up to 1048576), their verify windows 64 rows together (TF_GLM_MULTI_WINDOW); DFlash2 drafts, prompt chunks of 1024 rows while others decode (TF_GLM_FILL_ROWS, TF_GLM_FILL_SHARE 0.5); waiting prompts share prompt chunks (TF_GLM_MULTI_PREFILL); sampler streams, depth policy, async messages off, lone stream on the one-stream graphs off; prompt layer slices target 200 ms
+  │ [tensorfold] serving apex-flash-1-4x at http://0.0.0.0:8888/v1 on CUDA, rank 0 of 4 (sampling: temperature 1.0, top_p 0.95; drafts: on; prompts: bf16 activations; context: 1048576; loaded in 266.4s)
+[start.sh] Server answered after 271s
+[5/5] Smoke test: one chat completion through all 4 ranks
+[start.sh] OK: 'OK', 2 tokens, 0.0851 s
+
+  ✔ apex-flash-1-4x is now LIVE! on port 8888
+
+    API      http://<addr>:8888/v1   (model: apex-flash-1-4x)
+    Window   1048576 tokens · 4 Sparks (experimental) · 8 at once · fp8 KV · dflash2 drafts · q4 dense weights · RoCE all-gathers · split prefill · chunked KDA
+    Drafts   fnc7:0.3 · copy drafts up to 15, code rules · shared system prompts on
+    Logs     docker logs -f glm53-flash-tf   (rank 1: ssh user@<addr> docker logs -f glm53-flash-tf)   (rank 2: ssh user@<addr> docker logs -f glm53-flash-tf)   (rank 3: ssh user@<addr> docker logs -f glm53-flash-tf)
+    Restart  ./start.sh restart
+    Stop     ./stop.sh
+

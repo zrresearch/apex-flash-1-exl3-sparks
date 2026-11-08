@@ -172,10 +172,10 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
   <div class="series">
     <span class="label">SparkMan field report · Fleet notes no. 1</span>
     <span class="chip ok">Conversion complete</span>
-    <span class="chip ok">Serving on 2 and 3 nodes</span>
-    <span class="chip ok">2- and 3-node benchmarks done</span>
+    <span class="chip ok">Serving on 2, 3 and 4 nodes</span>
+    <span class="chip ok">Benchmarks complete</span>
     <span class="chip ok">Matches base model on general suite</span>
-    <span class="chip warn">4 nodes starting · security evaluation pending</span>
+    <span class="chip warn">Security evaluation pending</span>
   </div>
   <h1>Apex Flash on Four Sparks</h1>
   <p class="sub">Building a 4-bit EXL3 quantization of a 321B security post-train of GLM-5.3-Flash on one DGX Spark, and serving it with TensorFold across two, three and four GB10 nodes.</p>
@@ -188,7 +188,7 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
 
 <div class="abstract">
   <span class="label">Abstract</span>
-  <p>Cantina's <em>apex-flash-1</em> is a 321-billion-parameter post-train of GLM-5.3-Flash for security investigations. In BF16 it is 642.7 GB, more than the 512 GB of unified memory in our largest group of DGX Sparks. We reproduced a published single-node conversion recipe that compresses only the routed experts to 4-bit EXL3 (mcg codebook) and keeps every other tensor in BF16. The run took 16 h 45 min on one GB10 with a flat 35 GB of host memory. It produced a 175.7 GB checkpoint whose 150,226 tensor names and dtypes match the reference TensorFold checkpoint exactly. Two of the recipe's final steps failed on path bugs and were completed by hand. The checkpoint is installed in the site's models library and is being brought up with Mia's AI Lab's TensorFold recipe on a two-node pair. Three- and four-node runs and quality comparisons against the base model follow.</p>
+  <p>Cantina's <em>apex-flash-1</em> is a 321-billion-parameter post-train of GLM-5.3-Flash for security investigations. In BF16 it is 642.7 GB, more than the 512 GB of unified memory in our largest group of DGX Sparks. We reproduced a published single-node conversion recipe that compresses only the routed experts to 4-bit EXL3 (mcg codebook) and keeps every other tensor in BF16. The run took 16 h 45 min on one GB10 with a flat 35 GB of host memory. It produced a 175.7 GB checkpoint whose 150,226 tensor names and dtypes match the reference TensorFold checkpoint exactly. Two of the recipe's final steps failed on path bugs and were completed by hand. Served with Mia's AI Lab's TensorFold recipe, it runs on two, three and four nodes, the last over a lossless QSFP switch with a four-node branch not previously tested on a switch. Single-stream decode rises from 75 to 91 to 120 tok/s on code across the three, and prefill at 32K tokens from 1,882 to 2,665 tok/s. On SparkMan's general quality suite the build matches the base GLM-5.3-Flash quantized and served the same way (14 against 15 discordant items of 797), and scores 100 on tool use. Whether Cantina's security training survived 4-bit quantization remains untested.</p>
 </div>
 
 <div class="figs" aria-label="Key figures">
@@ -386,8 +386,10 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
     <h3>6.2 Three nodes (ring): serving</h3>
     <p>The ring's existing recipe and <code>start-tp3.sh</code>, run through a new launcher script <code>up-apex.sh</code> beside the GLM ones. It sets <code>MODEL_ID</code>, <code>MODEL_REVISION</code>, <code>SERVED_NAME=apex-flash-1-3x</code> and <code>VISION=0</code>, and otherwise uses the same flags as the ring's GLM-5.3-Flash TensorFold launcher (loop guard on, thinking budget 16,384 tokens), so the base-model comparison is like for like. The build was copied into the head's cache from the library (about 530 MB/s), and the recipe copied it on to both workers over the fabric. One stop on the way: the conversion container had written the shards with mode <code>0600</code>, which the library's read-only mount could not read; they were made world-readable like the rest of the library.</p>
     <p>The first start loaded in 89 s. At three nodes the recipe's defaults rise to 8 concurrent requests sharing a KV pool of 5,101,568 tokens, each still up to 1,048,576. The same C-function question gave the same diagnosis (CWE-120/787, CWE-476). The model was then registered in SparkMan and restarted from its launcher.</p>
-    <h3>6.3 Four nodes (switch-dell), planned</h3>
-    <p>Mia's main branch supports two and three nodes. Their <code>tp4</code> branch (commit <code>d220030</code>) adds <code>start-tp4.sh</code> for four nodes on a switch and <code>start-tp4-switchless.sh</code> for a ring of direct cables. Mia measured the ring version; the switch version is documented as not yet tested on a switch. Mia's own four-node rig was a daisy chain; ours is a lossless QSFP switch, on which Mia's DeepSeek 4x recipe already runs. The script expects every pair of ranks to share a RoCE subnet. Our Dells carry one subnet per CX-7 half, shared by all four, so the check should pass; its dry run will confirm this before any start. The test needs DeepSeek V4.1 Flash 4x stopped on that group.</p>
+    <h3>6.3 Four nodes (switch-dell): serving</h3>
+    <p>Mia's main branch supports two and three nodes. Their <code>tp4</code> branch (commit <code>d220030</code>) adds <code>start-tp4.sh</code> for four nodes on a switch and <code>start-tp4-switchless.sh</code> for a ring of direct cables. Mia measured the ring version and documents the switch version as not yet tested on a switch. Mia's own four-node rig was a daisy chain; ours is a lossless QSFP switch (MikroTik CRS804, PFC on priority 0, MTU 9000). The script requires every pair of ranks to share a RoCE subnet. Our Dells carry one subnet per CX-7 half, shared by all four, so the preflight found a direct link from the head to each worker and accepted the topology as a switch.</p>
+    <p><b>First start: hung in NCCL initialization.</b> The image and checkpoint reached all four nodes, all four ranks launched and connected to rank 0's rendezvous port, and then every rank sat at 0.3 GiB of GPU memory and 0% utilization for 22 minutes, rank 0 at 99% CPU. NCCL's bootstrap socket defaults to each node's default-route interface, here the 10 GbE fleet port, and the head's firewall admits that port only from the control-plane host. The workers could not open their bootstrap connections to rank 0. Fix: <code>SOCKET_IFNAME=<netdev></code>, which keeps the bootstrap on the CX-7 fabric, where every node already accepts the fabric subnet. No firewall change was needed. The ring avoids this because its settings name the interface explicitly.</p>
+    <p><b>Second start: live</b> in 271 s, including the first compilation of the four-rank kernels. TensorFold's startup estimate for rank 0 falls to 50.2 GiB, from 86.3 on two nodes and 67.8 on three, and the shared KV pool grows to 5,834,752 tokens for 8 concurrent requests. The C-function check gave the same diagnosis.</p>
   </div>
 </section>
 
@@ -455,6 +457,24 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
     <p>The two models disagree on 29 of 797 items, 14 one way and 15 the other: no measurable difference (an exact McNemar test on 14 against 15 gives p ≈ 1). The headline averages, 87.5 against 92.8, differ only because long recall has two items and counts as one of eight categories; without it the two average 92.9 and 91.8. apex is ahead on instruction following (33 against 29) and short QA (130 against 126); the base is ahead on MMLU (252 against 245). Reasoning lengths are similar, with apex writing 10–17% more on reasoning and arithmetic items.</p>
     <p>Decode speed matches within a few percent, as expected for identical architectures and layouts. Prefill is consistently 8–21% slower for apex (2,121 against 2,338 tok/s at 32K). The cause is not established; candidates are differences between the two checkpoints' exact tensor packing and the order of runs on the node.</p>
     <p><b>What this shows.</b> The locally built 4-bit checkpoint is sound: on general knowledge, reasoning, arithmetic and tool use it matches the base model built the same way by Mia. It does not show whether apex's security post-training survived quantization, because nothing in this suite tests security work. That needs the evaluation in Section 9.</p>
+
+    <h3>7.3 Four nodes, and scaling</h3>
+    <p>Four nodes on the switch are the fastest configuration on every measure. One code stream decodes at 120 tok/s and one prose stream at 70, about 31% above three nodes and 55–60% above two. At 8 streams the group delivers 262 tok/s on code and 183 on prose. Prefill holds at about 2,550–2,665 tok/s from 16K to 256K tokens, so a 256K prompt reaches its first token in 1.7 minutes. Quality averaged 92.8% (long recall 2 of 2) and tool use 100, consistent with the other runs.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 11.</b> apex-flash-1 across node counts: single-stream decode, 8-stream aggregate decode, prefill at 32K tokens, first token for a 256K prompt, the shared KV pool, and TensorFold's startup memory estimate for rank 0 (weights and fixed buffers).</caption>
+      <thead><tr><th>Nodes</th><th>Fabric</th><th class="n">1 stream, code</th><th class="n">1 stream, prose</th><th class="n">8 streams, code</th><th class="n">Prefill 32K</th><th class="n">256K first token</th><th class="n">KV pool</th><th class="n">Rank 0 estimate</th></tr></thead>
+      <tbody>
+        <tr><td>2</td><td>direct cable, MTU 1500</td><td class="n">75.3</td><td class="n">45.7</td><td class="n">121.1*</td><td class="n">1,882</td><td class="n">157 s</td><td class="n">2.58M</td><td class="n">86.3 GiB</td></tr>
+        <tr><td>3</td><td>triangle of direct cables, MTU 9000</td><td class="n">91.1</td><td class="n">52.9</td><td class="n">196.0</td><td class="n">2,121</td><td class="n">141 s</td><td class="n">5.10M</td><td class="n">67.8 GiB</td></tr>
+        <tr><td>4</td><td>lossless QSFP switch, MTU 9000</td><td class="n">119.5</td><td class="n">69.7</td><td class="n">261.7</td><td class="n">2,665</td><td class="n">103 s</td><td class="n">5.83M</td><td class="n">50.2 GiB</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>* Two nodes decode 4 requests at a time, so 4 of the 8 streams queue. Speed is in tokens per second.</p>
+    <p>Single-stream decode rises with each node added, even though tensor parallelism adds an exchange per layer. Each node reads a smaller slice of the experts for every token, and decode on GB10 is limited by memory bandwidth, so the smaller slice outweighs the extra exchange at these sizes. The two-node figures also carry the pair's MTU 1500 link, so part of the 2-to-3 step is the network. The 3-to-4 step also changes the fabric, from a direct-cable triangle to a switch, so it cannot isolate the switch's cost; it shows that cost is small next to the gain from a fourth node.</p>
   </div>
 </section>
 
@@ -464,7 +484,8 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
     <p><b>Calibration differs from Mia's.</b> We matched the layout of Mia's checkpoint, which decides whether it loads. We could not match its calibration, which is unpublished and described as tuned to math, code, tool-call and chat workloads. Ours used ExLlamaV3's default set. This affects quality, not compatibility.</p>
     <p><b>The fine-tune may not survive 4-bit.</b> The recipe author measured apex-flash-1's routed experts at about 8×10⁻⁵ relative Frobenius distance from the base model, far below the error that 4-bit quantization adds (Figure 1 shows per-layer output errors of 6×10⁻³ to 3×10⁻²). A low-rank, coherent change can survive noise larger than itself, so this does not settle the question, but it makes a comparison against the base model necessary before trusting the 4-bit build for security work.</p>
     <p><b>Quality is measured only in general.</b> The converter's error figures describe reconstruction on calibration text, and SparkMan's quality suite covers general skills. Neither measures security-investigation ability, which is what Cantina trained for.</p>
-    <p><b>Topology.</b> The pair runs at MTU 1500 where the other groups use 9000, and the four-node switch path is untested upstream.</p>
+    <p><b>Topology confounds node count.</b> Each node count ran on a different fabric (a direct cable at MTU 1500, a triangle of direct cables, a switch), so the scaling in Table 11 mixes the effect of more nodes with the effect of the network.</p>
+    <p><b>Single runs.</b> Each benchmark ran once per configuration. Differences of a few percent in speed, and of one or two items in a category, are within run-to-run variation.</p>
   </div>
 </section>
 
@@ -475,9 +496,9 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
       <caption><b>Table 5.</b> Measurements, done and planned. All approved by the operator.</caption>
       <thead><tr><th>Measurement</th><th>Groups</th><th>Compared with</th><th>State</th></tr></thead>
       <tbody>
-        <tr><td>Loads and serves</td><td>2, 3, 4 nodes</td><td>none</td><td>2 and 3 done</td></tr>
-        <tr><td>Decode and prefill speed, 1–8 concurrent requests</td><td>2, 3, 4 nodes</td><td>each other; GLM-5.3-Flash TensorFold on the ring</td><td>2 and 3 done; 4 starting</td></tr>
-        <tr><td>Largest KV pool</td><td>2, 3, 4 nodes</td><td>each other</td><td>2 and 3 recorded</td></tr>
+        <tr><td>Loads and serves</td><td>2, 3, 4 nodes</td><td>none</td><td>done</td></tr>
+        <tr><td>Decode and prefill speed, 1–8 concurrent requests</td><td>2, 3, 4 nodes</td><td>each other; GLM-5.3-Flash TensorFold on the ring</td><td>done (Table 11)</td></tr>
+        <tr><td>Largest KV pool</td><td>2, 3, 4 nodes</td><td>each other</td><td>done</td></tr>
         <tr><td>Quality and tool use on SparkMan's suite</td><td>2, 3 nodes</td><td>base GLM-5.3-Flash on the ring, same quantization and flags</td><td>done: no difference (Table 10)</td></tr>
         <tr><td>A security-specific evaluation</td><td>one group</td><td>base GLM-5.3-Flash</td><td>to design</td></tr>
         <tr><td>If apex shows no gain: higher expert bitrate (5–6 bpw)</td><td>3 or 4 nodes</td><td>the 4-bit build</td><td>conditional</td></tr>
@@ -553,7 +574,7 @@ docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out
   </ol>
 </section>
 
-<footer>Last updated 8 November 2026: two- and three-node benchmarks and the base-model comparison complete; four-node run starting. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
+<footer>Last updated 8 November 2026: two-, three- and four-node benchmarks and the base-model comparison complete; a security-specific evaluation is the open item. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
 </div>
 
 <script>
@@ -604,6 +625,13 @@ const BENCH = {
               prose: [[1,52.9,52.9,140],[2,73.9,37.5,204],[4,103.1,26.3,226],[8,141.3,18.0,299]] },
     prefill: [[4110,1725,2382],[8208,2017,4070],[16397,2105,7790],[32780,2121,15457],[65553,2091,31351],[131084,2005,65384],[262159,1854,141412]],
     quality: { overall: 87.5, cats: { qa:[130,150], reasoning:[40,40], arithmetic:[40,40], state:[39,40], gsm8k:[195,200], mmlu:[245,285], instruction:[33,40], "long-recall":[1,2] } },
+    tooleval: 100,
+  },
+  "apex 4 nodes": {
+    decode: { code: [[1,119.5,119.5,110],[2,150.4,78.4,480],[4,207.4,53.5,387],[8,261.7,35.5,262]],
+              prose: [[1,69.7,69.7,112],[2,100.4,50.7,175],[4,137.0,35.3,285],[8,183.0,23.5,262]] },
+    prefill: [[4109,1245,3301],[8206,2291,3582],[16395,2565,6392],[32781,2665,12302],[65551,2625,24968],[131090,2608,50271],[262160,2546,102966]],
+    quality: { overall: 92.8, cats: { qa:[128,150], reasoning:[40,40], arithmetic:[40,40], state:[39,40], gsm8k:[193,200], mmlu:[251,285], instruction:[30,40], "long-recall":[2,2] } },
     tooleval: 100,
   },
   "GLM base 3 nodes": {
