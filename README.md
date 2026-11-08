@@ -1,6 +1,6 @@
 # apex-flash-1 EXL3 on DGX Sparks
 
-Research record for building a 4-bit EXL3 quantization of
+Building a 4-bit EXL3 quantization of
 [cantina-security/apex-flash-1](https://huggingface.co/cantina-security/apex-flash-1) (a 321B post-train of
 GLM-5.3-Flash) on one DGX Spark, and serving it with Mia's AI Lab's TensorFold recipe across 2, 3 and 4 GB10 nodes.
 
@@ -24,7 +24,7 @@ data and configuration behind it.
 
 | Path | Contents |
 |---|---|
-| `paper/apex-paper.html` | The working paper |
+| `paper/apex-paper.html` | The paper |
 | `data/conversion-layers.csv` | Per-layer converter stats: bpw, rfn, cos, SQNR, seconds, host memory (46 rows) |
 | `data/conversion-experts.csv` | Per-projection stats for every quantized expert: bpw, proxy error, g_sc, seconds (37,152 rows) |
 | `logs/download.log` | Library download log |
