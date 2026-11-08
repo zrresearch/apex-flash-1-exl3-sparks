@@ -1,0 +1,18 @@
+| GLM | models--cantina-security--apex-flash-1 | 643G | BF16 source @28c647a6 (dl-apex-flash-1.sh), 72 files, 642676407694 bytes, verified; for local EXL3 conversion | 2026-11-07 |
+| GLM | local/apex-flash-1-EXL3-4bpw-mcg | 176G | built here 2026-11-08 on pny-worker from apex-flash-1 @28c647a6 (WamboDNS quantize/ @099b04b, exllamav3 v1.5.3, 4bpw mcg routed experts, BF16 rest); layout PASS vs Mia TF index; 33 files 175725226520 bytes | 2026-11-08 |
+
+== source .copied
+source: hf cantina-security/apex-flash-1
+revision: 28c647a6bd0444973a7ef3d940c24c67e64f52fe
+date: 2026-11-07
+files: 72
+bytes: 642676407694
+verified: hf cache verify, all checksums match
+
+== build .copied
+source: built on pny-worker (~/apex-quant/out) 2026-11-08
+from: cantina-security/apex-flash-1 @28c647a6bd0444973a7ef3d940c24c67e64f52fe
+recipe: WamboDNS/apex-flash-1-EXL3-4bpw quantize/ @099b04b, exllamav3 v1.5.3 (int-K patch), mcg, 4bpw routed experts, cal 250x2048 default
+layout: check_layout PASS vs Mia-AiLab/GLM-5.3-Flash-EXL3-4bpw-TensorFold @078455ff index, dtypes match
+files: 33
+bytes: 175725226520

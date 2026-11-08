@@ -1,0 +1,9 @@
+✓ Verified 72 file(s) for model 'cantina-security/apex-flash-1'. All checksums match.
+  repo_id: cantina-security/apex-flash-1
+  repo_type: model
+  checked: 72
+  path: <library>/GLM/hub/models--cantina-security--apex-flash-1/snapshots/28c647a6bd0444973a7ef3d940c24c67e64f52fe
+72
+642676407694	GLM/hub/models--cantina-security--apex-flash-1/snapshots/28c647a6bd0444973a7ef3d940c24c67e64f52fe
+
+[exited with code 0]

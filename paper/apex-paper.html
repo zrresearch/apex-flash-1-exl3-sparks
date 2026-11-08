@@ -1,0 +1,488 @@
+<title>Apex Flash on Four Sparks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single-column technical report on cool lab paper; figures and tables step wider than the text measure. */
+:root {
+  --paper: #f8fafb;
+  --ink: #17212b;
+  --ink-2: #4b5966;
+  --rule: #d9e1e7;
+  --wash: #edf2f5;
+  --accent: #1c5d78;
+  --accent-soft: #d6e7ef;
+  --warn: #8a5a00;
+  --warn-soft: #f6ead2;
+  --ok: #2f6b3a;
+  --ok-soft: #dcefe0;
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --measure: 68ch;
+  --wide: 980px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #12181d;
+    --ink: #e3e9ee;
+    --ink-2: #9fb0bd;
+    --rule: #2a3640;
+    --wash: #1a232a;
+    --accent: #74b6d2;
+    --accent-soft: #1d3542;
+    --warn: #e2b766;
+    --warn-soft: #3a2f1a;
+    --ok: #8fcf9a;
+    --ok-soft: #1f3524;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #12181d;
+  --ink: #e3e9ee;
+  --ink-2: #9fb0bd;
+  --rule: #2a3640;
+  --wash: #1a232a;
+  --accent: #74b6d2;
+  --accent-soft: #1d3542;
+  --warn: #e2b766;
+  --warn-soft: #3a2f1a;
+  --ok: #8fcf9a;
+  --ok-soft: #1f3524;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.6;
+  padding-block: 48px 96px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.doc { max-width: var(--wide); margin: 0 auto; display: grid; gap: 56px; }
+.prose { max-width: var(--measure); display: grid; gap: 14px; }
+.prose > * { margin: 0; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.55rem; display: flex; gap: 14px; align-items: baseline; }
+h2 .num { font-family: var(--f-mono); font-weight: 500; font-size: 1rem; color: var(--accent); }
+h3 { font-size: 1.12rem; margin-top: 10px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+code { background: var(--wash); padding: 1px 5px; border-radius: 3px; overflow-wrap: anywhere; }
+.label { font-family: var(--f-display); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); font-weight: 500; }
+
+/* masthead */
+.mast { display: grid; gap: 18px; border-bottom: 1px solid var(--rule); padding-bottom: 32px; }
+.mast .series { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+.chip { font-family: var(--f-display); font-size: 0.8rem; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 999px; font-weight: 500; }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.sub { font-size: 1.15rem; color: var(--ink-2); max-width: var(--measure); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 28px; font-family: var(--f-mono); font-size: 0.8rem; color: var(--ink-2); }
+
+.abstract { background: var(--wash); padding: 24px 28px; border-radius: 4px; max-width: calc(var(--measure) + 56px); display: grid; gap: 10px; }
+.abstract p { margin: 0; }
+
+/* key figures */
+.figs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.figs div { background: var(--paper); padding: 16px 18px; display: grid; gap: 4px; align-content: start; }
+.figs b { font-family: var(--f-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.figs span { font-size: 0.86rem; color: var(--ink-2); line-height: 1.35; }
+@media (max-width: 720px) { .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* tables */
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+caption { text-align: left; font-family: var(--f-display); font-size: 0.86rem; color: var(--ink-2); padding-bottom: 8px; caption-side: top; }
+caption b { color: var(--ink); }
+th, td { text-align: left; padding: 7px 12px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--f-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+td.n, th.n { text-align: right; padding-right: 0; padding-left: 12px; }
+.yes { color: var(--ok); font-weight: 600; }
+.no { color: var(--warn); font-weight: 600; }
+
+/* figures */
+figure { margin: 0; display: grid; gap: 10px; }
+figcaption { font-size: 0.9rem; color: var(--ink-2); max-width: var(--measure); }
+figcaption b { color: var(--ink); font-family: var(--f-display); }
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+@media (max-width: 760px) { .panels { grid-template-columns: 1fr; } }
+.panel { display: grid; gap: 6px; }
+.panel h4 { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: 0.95rem; }
+.panel svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart-wrap { position: relative; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--paper); font-family: var(--f-mono); font-size: 0.75rem; padding: 6px 9px; border-radius: 3px; white-space: nowrap; transform: translate(-50%, -100%); margin-top: -8px; }
+.axis text { fill: var(--ink-2); font-family: var(--f-mono); font-size: 10px; }
+.axis line, .grid line { stroke: var(--rule); stroke-width: 1; }
+.bar { fill: var(--accent); }
+.bar.hot { fill: var(--ink); }
+.hit { fill: transparent; cursor: crosshair; }
+
+/* pipeline */
+.pipe { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; counter-reset: s; border-top: 2px solid var(--accent); }
+.pipe li { list-style: none; padding: 12px 12px 0 0; display: grid; gap: 4px; align-content: start; }
+.pipe li b { font-family: var(--f-display); font-weight: 600; font-size: 0.95rem; }
+.pipe li span { font-size: 0.85rem; color: var(--ink-2); line-height: 1.4; }
+.pipe li .t { font-family: var(--f-mono); font-size: 0.75rem; color: var(--accent); }
+@media (max-width: 820px) { .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 16px; } }
+ol.pipe { margin: 0; padding: 0; }
+
+.callout { border-left: 3px solid var(--warn); padding: 4px 0 4px 18px; max-width: var(--measure); display: grid; gap: 8px; }
+.callout p { margin: 0; }
+pre { background: var(--wash); padding: 14px 16px; border-radius: 4px; overflow-x: auto; font-family: var(--f-mono); font-size: 0.8rem; line-height: 1.55; margin: 0; max-width: 100%; }
+details { max-width: 100%; }
+summary { cursor: pointer; font-family: var(--f-display); font-weight: 500; color: var(--accent); }
+.refs { font-size: 0.9rem; display: grid; gap: 6px; padding-left: 1.4em; margin: 0; }
+section { display: grid; gap: 18px; }
+footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85rem; color: var(--ink-2); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="doc">
+
+<header class="mast">
+  <div class="series">
+    <span class="label">SparkMan field report · Fleet notes no. 1</span>
+    <span class="chip ok">Conversion complete</span>
+    <span class="chip warn">Serving tests in progress</span>
+  </div>
+  <h1>Apex Flash on Four Sparks</h1>
+  <p class="sub">Building a 4-bit EXL3 quantization of a 321B security post-train of GLM-5.3-Flash on one DGX Spark, and serving it with TensorFold across two, three and four GB10 nodes.</p>
+  <div class="meta">
+    <span>Working paper · 7–8 November 2026</span>
+    <span>Operator: zrresearch</span>
+    <span>Written with Claude Code</span>
+  </div>
+</header>
+
+<div class="abstract">
+  <span class="label">Abstract</span>
+  <p>Cantina's <em>apex-flash-1</em> is a 321-billion-parameter post-train of GLM-5.3-Flash for security investigations. In BF16 it is 642.7 GB, more than the 512 GB of unified memory in our largest group of DGX Sparks. We reproduced a published single-node conversion recipe that compresses only the routed experts to 4-bit EXL3 (mcg codebook) and keeps every other tensor in BF16. The run took 16 h 45 min on one GB10 with a flat 35 GB of host memory. It produced a 175.7 GB checkpoint whose 150,226 tensor names and dtypes match the reference TensorFold checkpoint exactly. Two of the recipe's final steps failed on path bugs and were completed by hand. The checkpoint is installed in the site's models library and is being brought up with Mia's AI Lab's TensorFold recipe on a two-node pair. Three- and four-node runs and quality comparisons against the base model follow.</p>
+</div>
+
+<div class="figs" aria-label="Key figures">
+  <div><b>642.7 GB</b><span>BF16 source, 72 files at revision 28c647a6</span></div>
+  <div><b>175.7 GB</b><span>4-bit output, 23 shards, 150,226 tensors</span></div>
+  <div><b>16 h 45 m</b><span>conversion on one Spark, 46 layers</span></div>
+  <div><b>37,152</b><span>expert projections quantized at 4.0 bpw</span></div>
+</div>
+
+<section>
+  <h2><span class="num">1</span>Question</h2>
+  <div class="prose">
+    <p>The operator asked whether apex-flash-1 can run on the fleet's existing node groups of two, three or four DGX Sparks, and, after a first answer, chose to build the quantized checkpoint locally rather than download a third party's build. The aim was to learn the procedure behind the GLM-5.3-Flash checkpoints that Mia's AI Lab publishes for TensorFold, and to keep control over settings such as bitrate for later experiments.</p>
+    <p>This report records each step, the settings used, what failed and how it was fixed, so that the build can be repeated or varied.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">2</span>Background</h2>
+  <div class="prose">
+    <h3>2.1 The model</h3>
+    <p>apex-flash-1 keeps GLM-5.3-Flash's architecture: a mixture-of-experts transformer with 44 decoder layers plus a multi-token-prediction (MTP) layer, 288 routed experts a layer, and a vision tower. Cantina trained it with GRPO on 150 tasks drawn from 50 real vulnerability cases. The fine-tune is a rank-256 LoRA across all experts and routers, plus full-parameter updates to 16 experts selected by activation. Cantina reports 66.7% pass@1 on a 60-task internal run, against 60.0% for the base model. The weights are MIT-licensed and not gated.</p>
+    <h3>2.2 The hardware</h3>
+    <p>Each DGX Spark is one GB10 superchip with 128 GB of memory shared by CPU and GPU, of which about 121 GiB is visible to the OS, and a ConnectX-7 NIC with two QSFP ports. The site runs nine Sparks in three groups (Table 1).</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 1.</b> Node groups at the site.</caption>
+      <thead><tr><th>Group</th><th class="n">Nodes</th><th class="n">Memory</th><th>Fabric</th><th>Usual workload</th></tr></thead>
+      <tbody>
+        <tr><td>pair-pny</td><td class="n">2</td><td class="n">256 GB</td><td>one direct QSFP cable, MTU 1500</td><td>DeepSeek V4.1 Flash, Qwen3.8 Flash Next</td></tr>
+        <tr><td>ring</td><td class="n">3</td><td class="n">384 GB</td><td>triangle of direct cables, MTU 9000</td><td>GLM-5.3-Flash (TensorFold and vLLM), GLM-5.2, Nemotron</td></tr>
+        <tr><td>switch-dell</td><td class="n">4</td><td class="n">512 GB</td><td>QSFP switch, lossless (PFC), MTU 9000</td><td>DeepSeek V4.1 Flash 4x</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <h3>2.3 Splitting a model across nodes</h3>
+    <p>With tensor parallelism (TP), each layer's weight matrices are cut into N slices and each node holds one. For every token, each node computes on its slice and the nodes exchange partial results over the fabric. Going from two to four nodes mostly divides the weights further and frees memory for KV cache; it does not by itself make a single request faster, because each extra node adds exchange traffic. The split must divide the model's heads and experts evenly, and the serving engine must support the node count.</p>
+    <h3>2.4 EXL3, TensorFold and the reference recipe</h3>
+    <p>EXL3 is ExLlamaV3's trellis-coded quantization format. TensorFold is an inference server that reads EXL3 and runs GLM-5.3-Flash across GB10 nodes. Mia's AI Lab publishes a TensorFold recipe for GLM-5.3-Flash (scripts, a patched engine image and a checkpoint) that the ring already runs at TP=3. Their checkpoint quantizes only the routed experts, to 4 bits with the <code>mcg</code> codebook, and keeps attention, shared experts, dense layers, embeddings, the output head and the vision tower in BF16. Its calibration data is unpublished.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3</span>Feasibility</h2>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 2.</b> Which form of apex-flash-1 fits which group, before overhead for the OS and KV cache.</caption>
+      <thead><tr><th>Form</th><th class="n">Weights</th><th>2 nodes</th><th>3 nodes</th><th>4 nodes</th></tr></thead>
+      <tbody>
+        <tr><td>Original BF16</td><td class="n">642.7 GB</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+        <tr><td>FP8 (third-party)</td><td class="n">~321 GB</td><td class="no">No</td><td class="no">Too tight</td><td>On paper, no Spark recipe</td></tr>
+        <tr><td>EXL3 4-bit experts, BF16 rest</td><td class="n">~176 GB</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes, with tp4 branch</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>Only the EXL3 form fits every group. Because apex-flash-1 shares its architecture with GLM-5.3-Flash, a checkpoint in the same layout as Mia's should load in Mia's recipe without code changes. That is the premise this work tests.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4</span>Method</h2>
+  <ol class="pipe" aria-label="Pipeline">
+    <li><span class="t">10:32–12:01</span><b>Acquire</b><span>Pinned download to the models library, checksums verified</span></li>
+    <li><span class="t">~20 min</span><b>Stage</b><span>Full source copied to pny-worker at ~545 MB/s</span></li>
+    <li><span class="t">12:41 → 05:26</span><b>Convert</b><span>46 layers in 8 chunks inside an ExLlamaV3 container</span></li>
+    <li><span class="t">05:26–05:31</span><b>Repair</b><span>Unfuse, MTP restore, dedupe, scope declaration</span></li>
+    <li><span class="t">~05:35</span><b>Validate</b><span>dtype reconciliation and layout check, run by hand</span></li>
+    <li><span class="t">in progress</span><b>Serve</b><span>Library copy, then TensorFold on 2, 3, 4 nodes</span></li>
+  </ol>
+  <p class="label">Times are Mountain (UTC−7), 7–8 November 2026.</p>
+
+  <div class="prose">
+    <h3>4.1 Source acquisition</h3>
+    <p>The source was downloaded once into the site's models library (a ZFS pool on the storage host), never on a GPU node, with the Hugging Face CLI at the pinned revision <code>28c647a6bd0444973a7ef3d940c24c67e64f52fe</code>. The download of 72 files took 89 minutes, about 120 MB/s. <code>hf cache verify</code> reported every checksum matching, and the snapshot totals 642,676,407,694 bytes.</p>
+    <p>One false alarm: measuring the repository folder returned 542 KB, because this version of <code>hf</code> keeps payloads in a shared xet blob store and links to them. Measuring through the links gave the expected size.</p>
+
+    <h3>4.2 Conversion recipe</h3>
+    <p>Mia's calibration is unpublished, so we followed the open recipe of WamboDNS (<code>apex-flash-1-EXL3-4bpw</code>, <code>quantize/</code> at commit <code>099b04b</code>), which targets the same layout. It builds ExLlamaV3 v1.5.3 into NVIDIA's PyTorch 26.07 container for compute capability 12.1, with one patch that coerces whole-number bitrates to integers before they reach the C++ kernels. Without it the first MoE layer fails with "incompatible function arguments".</p>
+    <p>A generated recipe file assigns 4 bits to each of the 36,288 routed-expert projections in layers 3–44 and 16 bits to the 258 other linear layers. The converter flags were:</p>
+  </div>
+  <pre>convert.py --in_dir src --work_dir work --out_dir out --recipe recipe.yaml \
+  --bits 4 --head_bits 16 --mtp_bits 4 --vision_bits 16 \
+  --codebook mcg --shard_size 8192 --checkpoint_interval 120 \
+  [--max_module L+2] --resume</pre>
+  <div class="prose">
+    <p><code>--codebook mcg</code> matters most: current ExLlamaV3 defaults to <code>mul1</code>, which converts cleanly but does not serve with the TensorFold kernels. <code>--mtp_bits 4</code> covers the MTP layer's 864 experts, bringing the quantized total to 37,152. Calibration used ExLlamaV3's bundled default set of 250 rows of 2,048 tokens.</p>
+
+    <h3>4.3 Deviation from the recipe</h3>
+    <p>The recipe streams source shards from Hugging Face during the conversion and deletes them behind it, so that it fits a 916 GB disk. That would download weights on a GPU node, which site rules forbid, and the target node had 3.0 TB free. We copied the whole source from the library first and disabled the eviction step, a one-line change to <code>run.sh</code>. Keeping the source also let the repair steps restore dtypes from it and verify their output against it.</p>
+
+    <h3>4.4 Conversion run</h3>
+    <p>The run executed in tmux on pny-worker. ExLlamaV3 reads its source directory only once per invocation, so the driver converts in chunks of six layers and resumes from a checkpoint between them. Module index is layer + 2 because the embedding and the hyper-connection expansion come first.</p>
+  </div>
+
+  <figure>
+    <div class="panels">
+      <div class="panel">
+        <h4>Relative Frobenius error of the layer output</h4>
+        <div class="chart-wrap" id="c-rfn"></div>
+      </div>
+      <div class="panel">
+        <h4>Wall time per layer, minutes</h4>
+        <div class="chart-wrap" id="c-time"></div>
+      </div>
+    </div>
+    <figcaption><b>Figure 1.</b> Per-layer statistics from the converter's log, layers 3–44 (the routed-expert layers). Error is ExLlamaV3's <code>rfn</code> on the calibration set, measured on the layer's output against the unquantized layer. Hover a bar for its values; the full table is below.</figcaption>
+    <details>
+      <summary>Table view of Figure 1, all 46 layers</summary>
+      <div class="tbl" id="t-layers"></div>
+    </details>
+  </figure>
+
+  <div class="prose">
+    <p>The three dense layers (0–2) are kept in BF16 and took about 2.5 minutes each. Each routed-expert layer took 21–24 minutes, a mean of 22.6. The MTP layer took 15 minutes. Host memory stayed between 34.0 and 34.9 GB for every layer before the MTP layer, well inside the node's 121 GiB. Per-layer error ranged from 0.0057 to 0.0303, rising through the middle layers (peak at layer 23) and falling to around 0.006–0.009 in the last third. Per-expert proxy error was around 0.0043 in the early layers. No chunk needed a retry.</p>
+
+    <h3>4.5 Repair steps</h3>
+    <p>After the last chunk, the driver runs five steps that make ExLlamaV3's output match what TensorFold reads:</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 3.</b> Post-conversion steps and what each changed.</caption>
+      <thead><tr><th>Step</th><th>Purpose</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td><code>unfuse.py</code></td><td>Split q/k/v and conv1d tensors that ExLlamaV3 stores fused</td><td>68 fused tensors split into 204, each verified bit-identical to the source; 714 dtypes restored</td></tr>
+        <tr><td><code>restore_mtp_bf16.py</code></td><td>Put the MTP head's 9 non-expert linears back in BF16</td><td>36 quantized tensors dropped and replaced; index at 150,226 tensors</td></tr>
+        <tr><td><code>dedupe_shards.py</code></td><td>Make every tensor live in exactly the shard the index names</td><td>2 byte-identical duplicates and 4 orphaned EXL3 parts removed</td></tr>
+        <tr><td><code>declare_scope.py</code></td><td>Record in <code>config.json</code> which weights are quantized</td><td><code>glm53_routed_experts_only</code></td></tr>
+        <tr><td><code>fix_dtypes.py</code></td><td>Reconcile dtypes against a reference map</td><td class="no">Failed: path bug (4.6)</td></tr>
+        <tr><td><code>check_layout.py</code></td><td>Compare every tensor name and dtype with a reference checkpoint</td><td class="no">Not reached (4.6)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <h3>4.6 Failures and fixes</h3>
+  </div>
+  <div class="callout">
+    <p><b>Reference map not found.</b> <code>run.sh</code> passes <code>./quantize/ref-dtypes.json.gz</code>, a path relative to the recipe folder, into a container that mounts only the job folder. The run exited with code 1. Fix: copy the file into the job folder and run the step there. It reported every dtype already matching, because keeping the full source let <code>unfuse.py</code> restore them all.</p>
+    <p><b>Layout check not copied.</b> The driver copies each helper into the job folder just before running it, and never reached this one. Fix: copy it in and run it.</p>
+    <p><b>Reference checkpoint unavailable.</b> The layout check downloads its reference index from Mia's <code>GLM-5.3-Flash-EXL3-TR3-4bpw</code> repository, which now returns HTTP 401. Fix: use the index of <code>Mia-AiLab/GLM-5.3-Flash-EXL3-4bpw-TensorFold</code> at <code>078455ff</code> from the local library. That is the checkpoint the ring serves today, so it is the more relevant reference.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">5</span>Results</h2>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 4.</b> The built checkpoint compared with two published builds of the same model.</caption>
+      <thead><tr><th>Build</th><th class="n">Size</th><th class="n">Tensors</th><th class="n">Shards</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><b>This work</b></td><td class="n">175,725,226,520 B</td><td class="n">150,226</td><td class="n">23</td><td>layout and dtypes match Mia's TensorFold build</td></tr>
+        <tr><td>SloptimistPrime EXL3-4bit-DGX-Spark</td><td class="n">175,642,473,288 B</td><td class="n">150,226</td><td class="n">23</td><td>same recipe lineage, ExLlamaV3 v1.5.3</td></tr>
+        <tr><td>wambosec EXL3-4bpw</td><td class="n">~167 GB</td><td class="n">150,226</td><td class="n">23</td><td>recipe author's build</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>The layout check passed: all 150,226 tensor names match the reference, the stored dtypes match, and all 46 layers are present. The tensor suffixes break down as 37,152 each of <code>trellis</code>, <code>suh</code>, <code>svh</code> and <code>mcg</code> (one set per quantized projection), plus 1,078 BF16 weights, 135 biases and 45 each of the hyper-connection scale and base tensors. Our build differs from SloptimistPrime's by 83 MB, consistent with the same recipe and calibration.</p>
+    <p>The checkpoint was copied to the models library under <code>GLM/local/apex-flash-1-EXL3-4bpw-mcg</code> (33 files, byte totals equal) and indexed.</p>
+    <p><b>Not yet established:</b> whether TensorFold loads it, its speed on each group, and whether its answers keep the fine-tune's gains. Sections 6 and 7 cover these.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6</span>Serving</h2>
+  <div class="prose">
+    <h3>6.1 Two nodes (pair-pny), in progress</h3>
+    <p>Mia's recipe was cloned on pny-head at commit <code>7d42f90</code>, the same commit the ring runs, with the ring's local patch to <code>start.sh</code> (a worker counts as stopped only after four failed liveness checks in a row). The recipe looks up checkpoints by Hugging Face repository id, so the build was installed into both nodes' caches as <code>local/apex-flash-1-EXL3-4bpw-mcg</code> at revision <code>local-20261108</code>. On pny-worker these are hard links to the conversion output; pny-head received a copy over the direct cable at about 365 MB/s, and the file manifests match. The recipe's download step fails for this id and falls back to the pinned local snapshot.</p>
+    <p>Settings: worker over the direct cable, served name <code>apex-flash-1-2x</code>, port 8888, the recipe's defaults otherwise (4 concurrent requests, 1,048,576-token window, FP8 KV cache, DFlash2 drafts, with the drafter copied from the library at <code>bf582e4e</code>). The preflight found both RDMA rails and the MTU 1500 link. At the time of writing the first start is pulling Mia's prebuilt engine image; next it runs <code>tensorfold info</code> on the checkpoint, loads both ranks and runs its smoke test.</p>
+    <h3>6.2 Three nodes (ring), planned</h3>
+    <p>The ring's existing recipe and <code>start-tp3.sh</code>, with <code>MODEL_ID</code> and <code>MODEL_REVISION</code> pointed at the local build and a separate launcher beside the GLM ones.</p>
+    <h3>6.3 Four nodes (switch-dell), planned</h3>
+    <p>Mia's main branch supports two and three nodes. Their <code>tp4</code> branch (commit <code>d220030</code>) adds <code>start-tp4.sh</code> for four nodes on a switch and <code>start-tp4-switchless.sh</code> for a ring of direct cables. Mia measured the ring version; the switch version is documented as not yet tested on a switch. Mia's own four-node rig was a daisy chain; ours is a lossless QSFP switch, on which Mia's DeepSeek 4x recipe already runs. The script expects every pair of ranks to share a RoCE subnet. Our Dells carry one subnet per CX-7 half, shared by all four, so the check should pass; its dry run will confirm this before any start. The test needs DeepSeek V4.1 Flash 4x stopped on that group.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7</span>Limitations</h2>
+  <div class="prose">
+    <p><b>Calibration differs from Mia's.</b> We matched the layout of Mia's checkpoint, which decides whether it loads. We could not match its calibration, which is unpublished and described as tuned to math, code, tool-call and chat workloads. Ours used ExLlamaV3's default set. This affects quality, not compatibility.</p>
+    <p><b>The fine-tune may not survive 4-bit.</b> The recipe author measured apex-flash-1's routed experts at about 8×10⁻⁵ relative Frobenius distance from the base model, far below the error that 4-bit quantization adds (Figure 1 shows per-layer output errors of 6×10⁻³ to 3×10⁻²). A low-rank, coherent change can survive noise larger than itself, so this does not settle the question, but it makes a comparison against the base model necessary before trusting the 4-bit build for security work.</p>
+    <p><b>Quality is unmeasured.</b> The converter's error figures describe reconstruction on calibration text. They say nothing about task accuracy.</p>
+    <p><b>Topology.</b> The pair runs at MTU 1500 where the other groups use 9000, and the four-node switch path is untested upstream.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">8</span>Next steps</h2>
+  <div class="tbl">
+    <table>
+      <caption><b>Table 5.</b> Planned measurements. All approved by the operator.</caption>
+      <thead><tr><th>Measurement</th><th>Groups</th><th>Compared with</th></tr></thead>
+      <tbody>
+        <tr><td>Loads, smoke test, served through the gateway</td><td>2, 3, 4 nodes</td><td>none</td></tr>
+        <tr><td>Decode and prefill speed, 1–8 concurrent requests</td><td>2, 3, 4 nodes</td><td>each other; GLM-5.3-Flash TensorFold on the ring</td></tr>
+        <tr><td>Largest usable context and KV pool</td><td>2, 3, 4 nodes</td><td>each other</td></tr>
+        <tr><td>Quality on SparkMan's benchmark set</td><td>one group</td><td>base GLM-5.3-Flash, same quantization</td></tr>
+        <tr><td>If apex shows no gain: higher expert bitrate (5–6 bpw)</td><td>3 or 4 nodes</td><td>the 4-bit build</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">A</span>Reproducibility</h2>
+  <div class="tbl">
+    <table>
+      <caption><b>Table A1.</b> Pinned inputs.</caption>
+      <thead><tr><th>Component</th><th>Version</th></tr></thead>
+      <tbody>
+        <tr><td>Source model</td><td><code>cantina-security/apex-flash-1</code> @ <code>28c647a6bd0444973a7ef3d940c24c67e64f52fe</code></td></tr>
+        <tr><td>Conversion recipe</td><td><code>WamboDNS/apex-flash-1-EXL3-4bpw</code> @ <code>099b04b</code>, eviction disabled</td></tr>
+        <tr><td>Converter</td><td>ExLlamaV3 v1.5.3 with integer-K patch, image <code>exl3-convert:v1.5.3-p1</code></td></tr>
+        <tr><td>Base container</td><td><code>nvcr.io/nvidia/pytorch:26.07-py3</code>, CUDA arch 12.1</td></tr>
+        <tr><td>Layout reference</td><td><code>Mia-AiLab/GLM-5.3-Flash-EXL3-4bpw-TensorFold</code> @ <code>078455ff</code></td></tr>
+        <tr><td>Serving recipe, 2–3 nodes</td><td><code>MiaAI-Lab/GLM-5.3-Flash-EXL3-2x-DGX-Sparks-TensorFold</code> @ <code>7d42f90</code>, TensorFold v0.6.0</td></tr>
+        <tr><td>Serving recipe, 4 nodes</td><td>same repository, branch <code>tp4</code> @ <code>d220030</code></td></tr>
+        <tr><td>Drafter</td><td><code>incoai/GLM-5.3-Flash-DFlash2</code> @ <code>bf582e4e</code> (CC BY-NC-ND 4.0)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <details>
+    <summary>Commands, in order</summary>
+<pre># 1. library host: pinned download, then verify
+hf download cantina-security/apex-flash-1 --revision 28c647a6… --cache-dir &lt;library&gt;/GLM/hub
+hf cache verify cantina-security/apex-flash-1 --revision 28c647a6… --cache-dir &lt;library&gt;/GLM/hub --fail-on-missing-files
+
+# 2. stage the full source on the converting node
+rsync -aL --partial &lt;library&gt;/…/snapshots/28c647a6…/ pny-worker:apex-quant/src/
+
+# 3. convert (tmux), with `stream evict` disabled in quantize/run.sh
+ROOT=$HOME/apex-quant REVISION=28c647a6… ./quantize/run.sh
+
+# 4. finish the two steps run.sh could not
+cp quantize/ref-dtypes.json.gz quantize/check_layout.py ~/apex-quant/
+docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/fix_dtypes.py --out-dir ~/apex-quant/out \
+  --reference-dtypes ~/apex-quant/ref-dtypes.json.gz
+docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out-dir ~/apex-quant/out --full \
+  --reference-index ~/apex-quant/ref-mia-tf-index.json --reference-dtypes ~/apex-quant/ref-dtypes.json.gz
+
+# 5. install as a local Hub id on both nodes, then serve with Mia's recipe
+#    ~/.cache/huggingface/hub/models--local--apex-flash-1-EXL3-4bpw-mcg/snapshots/local-20261108/
+#    scripts/local.sh: MODEL_ID=local/apex-flash-1-EXL3-4bpw-mcg MODEL_REVISION=local-20261108 SERVED_NAME=apex-flash-1-2x
+./sparkman-start.sh</pre>
+  </details>
+</section>
+
+<section>
+  <h2><span class="num">B</span>Operational notes</h2>
+  <div class="prose">
+    <p>Claude Code's auto-mode safety check blocked the first launch of the conversion because <code>run.sh</code> executes code fetched from third-party repositories. The helper scripts were read before the run: they write only inside the job folder, fetch nothing but one public index file, and start no other programs. The operator approved the exact launch command.</p>
+    <p>A watcher that detected the serving script by process name missed it, because the recipe re-executes itself by absolute path. The pattern was corrected; no work was lost.</p>
+    <p>Site rules followed throughout: checkpoints downloaded only to the library host; no running model stopped; no secrets printed; nothing written to the SparkMan repository.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">C</span>Sources</h2>
+  <ol class="refs">
+    <li><a href="https://huggingface.co/cantina-security/apex-flash-1">cantina-security/apex-flash-1</a> and <a href="https://www.cantina.security/apex-flash">Cantina's announcement</a></li>
+    <li><a href="https://github.com/WamboDNS/apex-flash-1-EXL3-4bpw">WamboDNS/apex-flash-1-EXL3-4bpw</a>, conversion recipe</li>
+    <li><a href="https://huggingface.co/SloptimistPrime/apex-flash-1-EXL3-4bit-DGX-Spark">SloptimistPrime/apex-flash-1-EXL3-4bit-DGX-Spark</a>, comparison build</li>
+    <li><a href="https://huggingface.co/Mia-AiLab/GLM-5.3-Flash-EXL3-4bpw-TensorFold">Mia-AiLab/GLM-5.3-Flash-EXL3-4bpw-TensorFold</a>, layout reference</li>
+    <li><a href="https://github.com/MiaAI-Lab/GLM-5.3-Flash-EXL3-2x-DGX-Sparks-TensorFold">MiaAI-Lab/GLM-5.3-Flash-EXL3-2x-DGX-Sparks-TensorFold</a>, serving recipe and tp4 branch</li>
+    <li><a href="https://github.com/ashhart/TensorFold">ashhart/TensorFold</a> and <a href="https://github.com/turboderp-org/exllamav3">turboderp-org/exllamav3</a></li>
+  </ol>
+</section>
+
+<footer>Last updated 8 November 2026, while the two-node first start was in progress. Sections 6–8 will be filled in as runs complete.</footer>
+</div>
+
+<script>
+// layer, bpw, rfn, sqnr(dB), seconds, rss(GB) from the converter log
+const L = [[0,16.05,0,69.99,165.14,34.39],[1,16.05,0,68.47,140.82,34.31],[2,16.05,0,72.76,150.11,34.05],[3,4.27,0.022287,50.76,1367.71,34.88],[4,4.28,0.011883,48.14,1278.29,34.89],[5,4.28,0.013686,44.49,1312.17,34.87],[6,4.28,0.019522,47.80,1422.37,34.65],[7,4.27,0.012022,49.12,1314.67,34.60],[8,4.28,0.009673,49.04,1342.03,34.62],[9,4.28,0.012086,46.07,1340.93,34.62],[10,4.28,0.020222,46.76,1340.28,34.56],[11,4.27,0.012988,48.76,1370.46,34.55],[12,4.28,0.007812,49.81,1435.02,34.73],[13,4.28,0.008935,48.08,1406.63,34.46],[14,4.28,0.011168,46.51,1355.65,34.45],[15,4.27,0.017961,43.46,1327.17,34.43],[16,4.28,0.014788,44.79,1387.13,34.35],[17,4.28,0.019373,54.11,1367.49,34.40],[18,4.28,0.017328,54.67,1382.40,34.75],[19,4.27,0.017560,59.77,1334.13,34.72],[20,4.28,0.017408,59.07,1346.84,34.65],[21,4.28,0.023477,53.96,1334.09,34.62],[22,4.28,0.025889,38.93,1379.60,34.53],[23,4.27,0.030334,39.65,1333.47,34.55],[24,4.28,0.019481,37.34,1374.28,34.76],[25,4.28,0.021092,53.27,1343.04,34.67],[26,4.28,0.021634,43.76,1332.59,34.63],[27,4.27,0.015577,55.72,1367.87,34.63],[28,4.28,0.014458,46.60,1347.99,34.54],[29,4.28,0.016910,39.14,1370.79,34.57],[30,4.28,0.013334,43.49,1361.38,34.75],[31,4.27,0.011128,48.15,1331.30,34.66],[32,4.28,0.014162,42.83,1371.97,34.65],[33,4.28,0.009203,53.78,1366.31,34.63],[34,4.28,0.006565,53.03,1357.39,34.55],[35,4.27,0.006152,50.27,1369.76,34.60],[36,4.28,0.005741,44.04,1371.98,34.76],[37,4.28,0.006098,40.15,1350.46,34.63],[38,4.28,0.007084,40.96,1324.07,34.63],[39,4.27,0.007060,39.36,1369.45,34.63],[40,4.28,0.007842,38.08,1371.57,34.56],[41,4.28,0.008392,38.84,1345.45,34.57],[42,4.28,0.009092,45.26,1368.91,34.76],[43,4.27,0.009379,52.35,1332.15,34.70],[44,4.28,0.008082,45.06,1344.43,34.65],[45,4.05,null,null,904.75,23.96]];
+const moe = L.filter(r => r[0] >= 3 && r[0] <= 44);
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+
+function barChart(id, rows, val, max, ticks, fmtTick, fmtTip) {
+  const host = document.getElementById(id);
+  const W = 440, H = 200, m = { l: 40, r: 6, t: 8, b: 26 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" });
+  const y = v => m.t + ih - (v / max) * ih;
+  const g = el("g", { class: "grid" }, svg), ax = el("g", { class: "axis" }, svg);
+  ticks.forEach(t => { el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); const tx = el("text", { x: m.l - 6, y: y(t) + 3, "text-anchor": "end" }, ax); tx.textContent = fmtTick(t); });
+  const n = rows.length, step = iw / n, bw = Math.max(2, step - 2);
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true;
+  rows.forEach((r, i) => {
+    const v = val(r), x = m.l + i * step + (step - bw) / 2, top = y(v), h = m.t + ih - top;
+    const rad = Math.min(2, bw / 2, h);
+    const p = `M${x},${m.t + ih} V${top + rad} Q${x},${top} ${x + rad},${top} H${x + bw - rad} Q${x + bw},${top} ${x + bw},${top + rad} V${m.t + ih} Z`;
+    const bar = el("path", { d: p, class: "bar" }, svg);
+    const hit = el("rect", { x: m.l + i * step, y: m.t, width: step, height: ih, class: "hit" }, svg);
+    hit.addEventListener("pointerenter", () => { bar.classList.add("hot"); tip.hidden = false; tip.textContent = fmtTip(r); const bb = svg.getBoundingClientRect(), s = bb.width / W; tip.style.left = ((x + bw / 2) * s) + "px"; tip.style.top = (top * s) + "px"; });
+    hit.addEventListener("pointerleave", () => { bar.classList.remove("hot"); tip.hidden = true; });
+    if (r[0] % 5 === 0) { const tx = el("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle" }, ax); tx.textContent = r[0]; }
+  });
+  const lab = el("text", { x: W - m.r, y: H - 8, "text-anchor": "end" }, ax); lab.textContent = "layer";
+  el("line", { x1: m.l, x2: W - m.r, y1: m.t + ih, y2: m.t + ih, stroke: "currentColor", "stroke-opacity": "0.35" }, svg);
+  host.appendChild(svg); host.appendChild(tip);
+}
+barChart("c-rfn", moe, r => r[2], 0.035, [0, 0.01, 0.02, 0.03], t => t.toFixed(2), r => `layer ${r[0]} · rfn ${r[2].toFixed(4)} · ${r[3].toFixed(1)} dB`);
+barChart("c-time", moe, r => r[4] / 60, 25, [0, 5, 10, 15, 20, 25], t => t, r => `layer ${r[0]} · ${(r[4] / 60).toFixed(1)} min · ${r[5].toFixed(1)} GB`);
+
+const t = document.createElement("table");
+t.innerHTML = "<thead><tr><th class='n'>Layer</th><th>Kind</th><th class='n'>bpw</th><th class='n'>rfn</th><th class='n'>SQNR dB</th><th class='n'>Minutes</th><th class='n'>Host GB</th></tr></thead>";
+const tb = document.createElement("tbody");
+L.forEach(r => {
+  const kind = r[0] < 3 ? "dense, BF16" : r[0] === 45 ? "MTP" : "routed experts";
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td class="n">${r[0]}</td><td>${kind}</td><td class="n">${r[1].toFixed(2)}</td><td class="n">${r[2] == null || r[2] === 0 ? "–" : r[2].toFixed(4)}</td><td class="n">${r[3] == null || r[0] < 3 ? "–" : r[3].toFixed(1)}</td><td class="n">${(r[4] / 60).toFixed(1)}</td><td class="n">${r[5].toFixed(1)}</td>`;
+  tb.appendChild(tr);
+});
+t.appendChild(tb);
+document.getElementById("t-layers").appendChild(t);
+</script>

@@ -1,0 +1,31 @@
+93:PORT="${PORT:-8888}"
+94:DRAFTER="${DRAFTER:-dflash2}"        # dflash2: incoai/GLM-5.3-Flash-DFlash2 drafts (CC BY-NC-ND 4.0: non-commercial
+110:PARALLEL="${PARALLEL:-$_par}"
+124:CONTEXT="${CONTEXT:-$_ctx}"
+125:DFLASH2_ID="${DFLASH2_ID:-incoai/GLM-5.3-Flash-DFlash2}"
+127:DFLASH2_REVISION="${DFLASH2_REVISION-$_rev}"   # DFlash2's pinned revision, as MODEL_REVISION above
+diff --git a/start.sh b/start.sh
+index cc7c3d2..ae04900 100755
+--- a/start.sh
++++ b/start.sh
+@@ -370,11 +370,19 @@ foreground() {
+   local watch w code i
+   trap './stop.sh; exit 130' INT TERM
+   ( exec 8>&-                                        # not holding start.sh's lock once start.sh has exited
++    declare -A miss=()
++    errf=$(mktemp)
+     while sleep 30; do
+       running_here || exit 0
+       for i in $(worker_ids); do
+         worker "$i" true 2>/dev/null || continue    # a worker out of reach for a moment says nothing about its rank
+-        running_worker "$i" && continue
++        # local patch (site): one check that does not read "running" can be the check itself (2026-10-19 twice, a
++        # running rank 2 was taken for exited), so stop rank 0 only after 4 in a row (2 min), and log what each miss got
++        rc=0; out=$(worker "$i" docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME" 2>"$errf") || rc=$?
++        if [[ "$out" == true ]]; then miss[$i]=0; continue; fi
++        miss[$i]=$(( ${miss[$i]:-0} + 1 ))
++        warn "rank $i on $(worker_host "$i") did not read as running ($((miss[$i]))/4): exit $rc, out '$(printf '%s' "$out" | tr '\n' ' ' | cut -c1-200)', err '$(tr '\n' ' ' <"$errf" | cut -c1-300)'"
++        if (( miss[$i] < 4 )); then continue; fi
+         warn "rank $i on $(worker_host "$i") exited: stopping rank 0"
+         docker stop -t "${STOP_TIMEOUT:-30}" "$CONTAINER_NAME" >/dev/null 2>&1
+         exit 1

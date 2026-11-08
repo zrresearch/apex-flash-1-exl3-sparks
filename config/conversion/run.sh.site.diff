@@ -1,0 +1,13 @@
+diff --git a/quantize/run.sh b/quantize/run.sh
+index 85fc028..8ea96e4 100755
+--- a/quantize/run.sh
++++ b/quantize/run.sh
+@@ -244,7 +244,7 @@ while (( layer <= LAST_LAYER )); do
+   RESUMING=1
+   layer=$(( end + 1 ))
+   if (( layer <= LAST_LAYER )); then
+-    stream evict --before "$layer"
++    : # site: full source copied from the library; keep it (no evict)
+   fi
+ done
+ 
