@@ -169,20 +169,11 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
 <div class="doc">
 
 <header class="mast">
-  <div class="series">
-    <span class="label">SparkMan field report · Fleet notes no. 1</span>
-    <span class="chip ok">Conversion complete</span>
-    <span class="chip ok">Serving on 2, 3 and 4 nodes</span>
-    <span class="chip ok">Benchmarks complete</span>
-    <span class="chip ok">Matches base model on general suite</span>
-    <span class="chip warn">Security evaluation pending</span>
-  </div>
   <h1>Apex Flash on Four Sparks</h1>
   <p class="sub">Building a 4-bit EXL3 quantization of a 321B security post-train of GLM-5.3-Flash on one DGX Spark, and serving it with TensorFold across two, three and four GB10 nodes.</p>
   <div class="meta">
+    <span>operator</span>
     <span>7–8 November 2026</span>
-    <span>Operator: zrresearch</span>
-    <span>Written with Claude Code</span>
   </div>
 </header>
 
@@ -201,7 +192,7 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
 <section>
   <h2><span class="num">1</span>Question</h2>
   <div class="prose">
-    <p>The operator asked whether apex-flash-1 can run on the fleet's existing node groups of two, three or four DGX Sparks, and, after a first answer, chose to build the quantized checkpoint locally rather than download a third party's build. The aim was to learn the procedure behind the GLM-5.3-Flash checkpoints that Mia's AI Lab publishes for TensorFold, and to keep control over settings such as bitrate for later experiments.</p>
+    <p>Can apex-flash-1 run on node groups of two, three and four DGX Sparks, and how does it perform on each? We built the quantized checkpoint ourselves rather than download a third party's build. The aim was to learn the procedure behind the GLM-5.3-Flash checkpoints that Mia's AI Lab publishes for TensorFold, and to keep control over settings such as bitrate for later experiments.</p>
     <p>This report records each step, the settings used, what failed and how it was fixed, so that the build can be repeated or varied.</p>
   </div>
 </section>
@@ -493,7 +484,7 @@ footer { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 0.85re
   <h2><span class="num">9</span>Next steps</h2>
   <div class="tbl">
     <table>
-      <caption><b>Table 5.</b> Measurements, done and planned. All approved by the operator.</caption>
+      <caption><b>Table 5.</b> Measurements, done and planned.</caption>
       <thead><tr><th>Measurement</th><th>Groups</th><th>Compared with</th><th>State</th></tr></thead>
       <tbody>
         <tr><td>Loads and serves</td><td>2, 3, 4 nodes</td><td>none</td><td>done</td></tr>
@@ -552,13 +543,9 @@ docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out
 </section>
 
 <section>
-  <h2><span class="num">B</span>Operational notes</h2>
+  <h2><span class="num">B</span>Tooling fixes</h2>
   <div class="prose">
-    <p>Claude Code's auto-mode safety check blocked the first launch of the conversion because <code>run.sh</code> executes code fetched from third-party repositories. The helper scripts were read before the run: they write only inside the job folder, fetch nothing but one public index file, and start no other programs. The operator approved the exact launch command.</p>
-    <p>A watcher that detected the serving script by process name missed it, because the recipe re-executes itself by absolute path. The pattern was corrected; no work was lost.</p>
-    <p>Two faults in SparkMan's benchmark tooling surfaced on the first runs and were fixed. The quality suite failed at once whenever it included long recall: the vendored sparkDash helper <code>longSizesForContext</code> returns <code>{ run, skipped }</code>, but SparkMan used the result as a list, and its type declaration hid the mismatch. One line and the declaration were corrected, then SparkMan was type-checked, built and restarted (the gateway was not). tool-eval-bench failed at startup because its virtual environment, built for Python 3.12, linked to the system <code>python3</code>, which had since moved to 3.14; the link was pointed back at the still-installed 3.12, with the operator's approval.</p>
-    <p>Registering the models in SparkMan uses a temporary account for its API. The safety check blocked creating it until the operator approved that exact command.</p>
-    <p>Site rules followed throughout: checkpoints downloaded only to the library host; no running model stopped; no secrets printed; nothing written to the SparkMan repository.</p>
+    <p>Two faults in SparkMan's benchmark tooling surfaced on the first runs and were fixed. The quality suite failed at once whenever it included long recall: the vendored sparkDash helper <code>longSizesForContext</code> returns <code>{ run, skipped }</code>, but SparkMan used the result as a list, and its type declaration hid the mismatch. One line and the declaration were corrected, then SparkMan was type-checked, built and restarted (the gateway was not). tool-eval-bench failed at startup because its virtual environment, built for Python 3.12, linked to the system <code>python3</code>, which had since moved to 3.14; the link was pointed back at the still-installed 3.12.</p>
   </div>
 </section>
 
@@ -574,7 +561,7 @@ docker run … exl3-convert:v1.5.3-p1 python3 ~/apex-quant/check_layout.py --out
   </ol>
 </section>
 
-<footer>Last updated 8 November 2026: two-, three- and four-node benchmarks and the base-model comparison complete; a security-specific evaluation is the open item. Data and logs: the research repository (full record in the site library; a scrubbed private copy at github.com/zrresearch/apex-flash-1-exl3-sparks).</footer>
+<footer>Updated 8 November 2026. Data, logs and configuration: github.com/zrresearch/apex-flash-1-exl3-sparks.</footer>
 </div>
 
 <script>

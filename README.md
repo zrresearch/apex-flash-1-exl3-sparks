@@ -53,4 +53,4 @@ The checkpoint itself (175.7 GB) is not in this repository.
 ## Licenses
 
 apex-flash-1 and the converted weights are MIT (Z.AI and Cantina). The DFlash2 drafter is CC BY-NC-ND 4.0. Logs and
-data here are the operator's own.
+data here are operator's own.
