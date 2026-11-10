@@ -148,7 +148,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 
 <p>Cantina's <a href="https://huggingface.co/cantina-security/apex-flash-1">apex-flash-1</a> is a 321-billion-parameter reinforcement-learning post-train of GLM-5.3-Flash for security investigations. In BF16 it is 642.7 GB, larger than the 512 GB of memory in our biggest group of DGX Sparks. We built our own 4-bit EXL3 version of it on a single Spark, in the same layout as the <a href="https://huggingface.co/Mia-AiLab/GLM-5.3-Flash-EXL3-4bpw-TensorFold">GLM-5.3-Flash checkpoints</a> <a href="https://huggingface.co/Mia-AiLab">Mia's AI Lab</a> publishes for <a href="https://github.com/ashhart/TensorFold">TensorFold</a>, and served it with <a href="https://github.com/MiaAI-Lab/GLM-5.3-Flash-EXL3-2x-DGX-Sparks-TensorFold">their recipe</a> on groups of two, three and four Sparks.</p>
 <p>The conversion took 16 h 45 min on one GB10 and produced a 175.7 GB checkpoint whose 150,226 tensor names and dtypes match Mia's reference exactly. It loads unchanged in TensorFold. On four Sparks connected through a QSFP switch, a configuration Mia's four-node branch had not been run on, it decodes a single stream at 120 tokens per second on code and 70 on prose, and 262 tokens per second across eight streams. A 256K-token prompt reaches its first token in 103 seconds.</p>
-<p>On a general quality suite of 797 items, the build is indistinguishable from the base GLM-5.3-Flash quantized and served the same way, and it scores 100 on tool use. Whether Cantina's security training survived 4-bit quantization is the question we are now measuring. Data, logs and configuration are in the <a href="https://github.com/zrresearch/apex-flash-1-exl3-sparks">research repository</a>.</p>
+<p>On a general quality suite of 797 items, the build is indistinguishable from the base GLM-5.3-Flash quantized and served the same way, and it scores 100 on tool use. On 4,710 security-knowledge questions the two also tie, 87.3% against 87.7%. Whether Cantina's training for hands-on investigation survived 4-bit quantization needs a hands-on test, which is next. Data, logs and configuration are in the <a href="https://github.com/zrresearch/apex-flash-1-exl3-sparks">research repository</a>.</p>
 
 <nav class="toc" aria-label="Contents">
   <p>Contents</p>
@@ -234,7 +234,25 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 
 <h2 id="security">Security evaluation</h2>
 <p>Cantina reports that apex-flash-1 solves 40 of 60 held-out vulnerability tasks against 36 for the base model. Those tasks are private, and the full-precision model does not fit our hardware, so we ask the question that matters for what we can run: does our 4-bit apex still beat the 4-bit base on security work? A gap of four tasks in sixty is about seven points; detecting it reliably takes hundreds of paired items.</p>
-<p>We are starting with security knowledge: 4,710 multiple-choice questions from CyberMetric-2000, CTIBench's CTI-MCQ and SecQA (v1 and v2 test sets), asked with one prompt at temperature 0 with thinking enabled. apex runs on two and four Sparks and the base on three, at the same time. The two apex runs measure how much answers move from serving setup alone, which any apex-to-base gap has to exceed. The results will be added here. Because Cantina trained on hands-on agent work rather than recall, a tie on this test would say little; the stronger test is capture-the-flag challenges run through the Codex agent harness that Cantina trained with.</p>
+<p>We started with security knowledge: 4,710 multiple-choice questions from CyberMetric-2000, CTIBench's CTI-MCQ and SecQA (v1 and v2 test sets), asked with one prompt at temperature 0 with thinking enabled. apex ran on four Sparks and the base on three, at the same time; a second apex run on two Sparks measures how much answers move from the serving setup alone.</p>
+<p>With an 8,192-token limit, both models often reasoned past the limit on CTIBench without answering: 501 questions for apex and 574 for the base. We re-asked every such question with a 32,768-token limit, under the 16,384-token thinking budget both servers apply. About 57% of them then came back right for each model, and only 6 per model remained unanswered.</p>
+
+<div class="tbl">
+  <table>
+    <thead><tr><th>Question set</th><th class="n">Items</th><th class="n">apex-flash-1</th><th class="n">GLM-5.3-Flash</th><th class="n">apex only</th><th class="n">Base only</th></tr></thead>
+    <tbody>
+      <tr><td>CyberMetric-2000</td><td class="n">2,000</td><td class="n">95.0%</td><td class="n">95.0%</td><td class="n">25</td><td class="n">25</td></tr>
+      <tr><td>CTIBench CTI-MCQ</td><td class="n">2,500</td><td class="n">80.1%</td><td class="n">81.0%</td><td class="n">129</td><td class="n">152</td></tr>
+      <tr><td>SecQA v1, test</td><td class="n">110</td><td class="n">100%</td><td class="n">100%</td><td class="n">0</td><td class="n">0</td></tr>
+      <tr><td>SecQA v2, test</td><td class="n">100</td><td class="n">97.0%</td><td class="n">96.0%</td><td class="n">1</td><td class="n">0</td></tr>
+      <tr class="total"><td>All</td><td class="n">4,710</td><td class="n">87.3%</td><td class="n">87.7%</td><td class="n">155</td><td class="n">177</td></tr>
+    </tbody>
+    <caption>Table 3. Security knowledge, both models 4-bit, apex on four Sparks and the base on three. The last two columns count questions only one model answered correctly.</caption>
+  </table>
+</div>
+
+<p>The two models are indistinguishable. Of 4,710 questions, apex alone answered 155 correctly and the base alone 177 (exact McNemar p = 0.25); on CyberMetric the split is exactly 25 each way. The base's small lead comes from CTIBench (p = 0.19). For scale, at the 8,192-token limit the two apex runs, same weights on different groups, disagreed on 445 questions, while apex and the base disagreed on 454. The difference between the models is no larger than the difference between two serving setups of the same model.</p>
+<p>This result does not settle whether the post-training survived. Cantina rewarded solving hands-on vulnerability tasks, not recalling security facts, so a model that kept every gain from its training could still tie on this test. It does show that the 4-bit apex has lost no security knowledge relative to the base. The test that can detect Cantina's gain is hands-on: capture-the-flag challenges run through the Codex agent harness that Cantina trained with.</p>
 
 <h2 id="build">Building the checkpoint</h2>
 
@@ -248,7 +266,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>FP8, third-party</td><td class="n">~321 GB</td><td>no</td><td>too tight</td><td>on paper; no Spark recipe</td></tr>
       <tr><td>EXL3, 4-bit experts</td><td class="n">~176 GB</td><td>yes</td><td>yes</td><td>yes</td></tr>
     </tbody>
-    <caption>Table 3. Which form of apex-flash-1 fits which group, before memory for the system and the KV cache.</caption>
+    <caption>Table 4. Which form of apex-flash-1 fits which group, before memory for the system and the KV cache.</caption>
   </table>
 </div>
 <p>EXL3 is <a href="https://github.com/turboderp-org/exllamav3">ExLlamaV3</a>'s trellis-coded quantization format, and <a href="https://github.com/ashhart/TensorFold">TensorFold</a> is an inference server that runs EXL3 checkpoints of GLM-5.3-Flash across GB10 nodes. Mia's checkpoint quantizes only the 288 routed experts in each layer, to 4 bits with the <code>mcg</code> codebook, and keeps attention, shared experts, dense layers, embeddings, the output head and the vision tower in BF16. apex-flash-1 shares GLM-5.3-Flash's architecture, so a checkpoint in the same layout should load in Mia's recipe without code changes. That is the premise we tested.</p>
@@ -296,7 +314,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td><code>fix_dtypes.py</code></td><td>Reconcile dtypes against a reference map</td><td>run by hand; every dtype already matched</td></tr>
       <tr><td><code>check_layout.py</code></td><td>Compare every tensor name and dtype with a reference checkpoint</td><td>run by hand; pass</td></tr>
     </tbody>
-    <caption>Table 4. Post-conversion steps.</caption>
+    <caption>Table 5. Post-conversion steps.</caption>
   </table>
 </div>
 <p>The last two steps failed inside the recipe. The dtype step was given a path relative to the recipe folder inside a container that mounts only the job folder, and the layout checker was never copied into the job folder. Its reference, Mia's <code>GLM-5.3-Flash-EXL3-TR3-4bpw</code> repository, also now returns HTTP 401. We ran both by hand, checking the layout against Mia's <code>GLM-5.3-Flash-EXL3-4bpw-TensorFold</code> at <code>078455ff</code>, the checkpoint our three-Spark group already serves.</p>
@@ -309,7 +327,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>SloptimistPrime, EXL3-4bit-DGX-Spark</td><td class="n">175,642,473,288</td><td class="n">150,226</td><td class="n">23</td></tr>
       <tr><td>wambosec, EXL3-4bpw (recipe author)</td><td class="n">~167 GB</td><td class="n">150,226</td><td class="n">23</td></tr>
     </tbody>
-    <caption>Table 5. Our checkpoint beside two published builds of the same model.</caption>
+    <caption>Table 6. Our checkpoint beside two published builds of the same model.</caption>
   </table>
 </div>
 <p>All 150,226 tensor names and their dtypes match the reference, and all 46 layers are present. Our build is 83 MB from SloptimistPrime's, which used the same recipe and calibration.</p>
@@ -324,7 +342,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>ring</td><td class="n">3</td><td class="n">384 GB</td><td>triangle of direct cables, MTU 9000</td><td class="n">8</td><td class="n">67.8 GiB</td></tr>
       <tr><td>switch-dell</td><td class="n">4</td><td class="n">512 GB</td><td>MikroTik CRS804 switch, PFC lossless, MTU 9000</td><td class="n">8</td><td class="n">50.2 GiB</td></tr>
     </tbody>
-    <caption>Table 6. The three groups and how apex-flash-1 runs on each. Startup memory is TensorFold's estimate of weights and fixed buffers on the head.</caption>
+    <caption>Table 7. The three groups and how apex-flash-1 runs on each. Startup memory is TensorFold's estimate of weights and fixed buffers on the head.</caption>
   </table>
 </div>
 
@@ -341,6 +359,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 <p><b>Calibration differs from Mia's.</b> We matched the layout of Mia's checkpoint, which decides whether it loads. We could not match its calibration, which is unpublished and described as tuned to math, code, tool calls and chat; ours used ExLlamaV3's default set.</p>
 <p><b>The fine-tune may not survive 4-bit.</b> The recipe's author measured apex's routed experts at about 8×10⁻⁵ relative distance from the base model, far below the 6×10⁻³ to 3×10⁻² output error that 4-bit quantization adds here. A low-rank, coherent change can survive noise larger than itself, so this does not settle the question, but it is why the comparison with the base model matters.</p>
 <p><b>Fabric confounds group size.</b> Each group size ran on a different network, so Table 1 mixes the effect of more Sparks with the effect of the fabric.</p>
+<p><b>Multiple-choice tests measure recall.</b> The security quiz tests what a model knows, not whether it can carry out an investigation, which is the skill Cantina trained. Its answers also depend on the thinking budget: with an 8,192-token limit, 11–12% of answers were cut off before a letter.</p>
 <p><b>Single runs.</b> Each speed benchmark ran once per configuration. Differences of a few percent in speed, or one or two items in a quality category, are within run-to-run variation.</p>
 
 <h2 id="next">What comes next</h2>
@@ -351,11 +370,11 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>Loading and serving on 2, 3 and 4 Sparks</td><td>none</td><td>done</td></tr>
       <tr><td>Decode, prefill and KV capacity</td><td>each group; base GLM-5.3-Flash</td><td>done</td></tr>
       <tr><td>General quality and tool use</td><td>base GLM-5.3-Flash, same quantization and flags</td><td>done, no difference</td></tr>
-      <tr><td>Security knowledge, 4,710 questions</td><td>base GLM-5.3-Flash; apex on a second group</td><td>running</td></tr>
+      <tr><td>Security knowledge, 4,710 questions</td><td>base GLM-5.3-Flash; apex on a second group</td><td>done, no difference; two-Spark re-asks running</td></tr>
       <tr><td>Capture-the-flag challenges through the Codex harness</td><td>base GLM-5.3-Flash</td><td>planned</td></tr>
       <tr><td>Higher expert bitrate, 5–6 bits</td><td>this build</td><td>if apex shows no security gain</td></tr>
     </tbody>
-    <caption>Table 7. Measurements done and planned.</caption>
+    <caption>Table 8. Measurements done and planned.</caption>
   </table>
 </div>
 
