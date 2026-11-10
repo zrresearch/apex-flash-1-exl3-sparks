@@ -235,7 +235,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 <h2 id="security">Security evaluation</h2>
 <p>Cantina reports that apex-flash-1 solves 40 of 60 held-out vulnerability tasks against 36 for the base model. Those tasks are private, and the full-precision model does not fit our hardware, so we ask the question that matters for what we can run: does our 4-bit apex still beat the 4-bit base on security work? A gap of four tasks in sixty is about seven points; detecting it reliably takes hundreds of paired items.</p>
 <p>We started with security knowledge: 4,710 multiple-choice questions from CyberMetric-2000, CTIBench's CTI-MCQ and SecQA (v1 and v2 test sets), asked with one prompt at temperature 0 with thinking enabled. apex ran on four Sparks and the base on three, at the same time; a second apex run on two Sparks measures how much answers move from the serving setup alone.</p>
-<p>With an 8,192-token limit, both models often reasoned past the limit on CTIBench without answering: 501 questions for apex and 574 for the base. We re-asked every such question with a 32,768-token limit, under the 16,384-token thinking budget both servers apply. About 57% of them then came back right for each model, and only 6 per model remained unanswered.</p>
+<p>With an 8,192-token limit, both models often reasoned past the limit on CTIBench without answering: 501 questions for apex on four Sparks, 527 for apex on two and 574 for the base. We re-asked every such question with a 32,768-token limit, under a 16,384-token thinking budget on every server. About 57% of them then came back right in each run, and only 5 or 6 per run remained unanswered.</p>
 
 <div class="tbl">
   <table>
@@ -251,7 +251,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
   </table>
 </div>
 
-<p>The two models are indistinguishable. Of 4,710 questions, apex alone answered 155 correctly and the base alone 177 (exact McNemar p = 0.25); on CyberMetric the split is exactly 25 each way. The base's small lead comes from CTIBench (p = 0.19). For scale, at the 8,192-token limit the two apex runs, same weights on different groups, disagreed on 445 questions, while apex and the base disagreed on 454. The difference between the models is no larger than the difference between two serving setups of the same model.</p>
+<p>The two models are indistinguishable. Of 4,710 questions, apex alone answered 155 correctly and the base alone 177 (exact McNemar p = 0.25); on CyberMetric the split is exactly 25 each way. The base's small lead comes from CTIBench (p = 0.19). The second apex run, the same weights on two Sparks, scored 87.5%, between the two. It and the four-Spark run each answered correctly questions the other missed, 154 and 143 (p = 0.56); against the base, the two-Spark run splits 156 to 167 (p = 0.58). The same model on two serving setups disagrees on 297 questions, nearly as many as the 332 on which apex and the base disagree. The difference between the models is no larger than the noise from the serving setup.</p>
 <p>This result does not settle whether the post-training survived. Cantina rewarded solving hands-on vulnerability tasks, not recalling security facts, so a model that kept every gain from its training could still tie on this test. It does show that the 4-bit apex has lost no security knowledge relative to the base. The test that can detect Cantina's gain is hands-on: capture-the-flag challenges run through the Codex agent harness that Cantina trained with.</p>
 
 <h3>Capture the flag</h3>
@@ -378,7 +378,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>Loading and serving on 2, 3 and 4 Sparks</td><td>none</td><td>done</td></tr>
       <tr><td>Decode, prefill and KV capacity</td><td>each group; base GLM-5.3-Flash</td><td>done</td></tr>
       <tr><td>General quality and tool use</td><td>base GLM-5.3-Flash, same quantization and flags</td><td>done, no difference</td></tr>
-      <tr><td>Security knowledge, 4,710 questions</td><td>base GLM-5.3-Flash; apex on a second group</td><td>done, no difference; two-Spark re-asks running</td></tr>
+      <tr><td>Security knowledge, 4,710 questions</td><td>base GLM-5.3-Flash; apex on a second group</td><td>done, no difference</td></tr>
       <tr><td>Cybench capture the flag, 40 tasks × 3, Codex harness</td><td>base GLM-5.3-Flash</td><td>running</td></tr>
       <tr><td>Cybench capture the flag, 40 tasks × 3, Pi harness</td><td>base GLM-5.3-Flash</td><td>running</td></tr>
       <tr><td>Higher expert bitrate, 5–6 bits</td><td>this build</td><td>if apex shows no security gain</td></tr>
