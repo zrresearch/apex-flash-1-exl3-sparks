@@ -160,6 +160,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
     <li><a href="#serving">Serving it</a></li>
     <li><a href="#limitations">Limitations</a></li>
     <li><a href="#next">What comes next</a></li>
+    <li><a href="#learned">What we learned</a></li>
     <li><a href="#appendix">Appendix: reproducing this work</a></li>
   </ol>
 </nav>
@@ -422,11 +423,19 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>Cybench capture the flag, 40 tasks × 3, Pi harness</td><td>base GLM-5.3-Flash</td><td>done, no difference</td></tr>
       <tr><td>Cybench capture the flag, 40 tasks × 3, OpenCode harness</td><td>base GLM-5.3-Flash</td><td>done, no difference</td></tr>
       <tr><td>NYU CTF Bench, 198 tasks × 1, Codex harness</td><td>base GLM-5.3-Flash</td><td>done, no difference</td></tr>
-      <tr><td>Higher expert bitrate, 5–6 bits</td><td>this build</td><td>if apex shows no security gain</td></tr>
+      <tr><td>Higher expert bitrate, 5–6 bits, on TensorFold 1.2.7</td><td>this build; base GLM-5.3-Flash</td><td>open</td></tr>
     </tbody>
     <caption>Table 10. Measurements done and planned.</caption>
   </table>
 </div>
+
+<h2 id="learned">What we learned</h2>
+<p><b>A model this size can be built and served on Sparks without a datacenter.</b> One GB10 converted a 642.7 GB model to a 175.7 GB 4-bit checkpoint in under 17 hours. Matching the layout of a checkpoint TensorFold already serves was enough for it to load unchanged, and the same files ran on two, three and four Sparks. Four Sparks on a switch, a setup the recipe had not been run on, gave 120 tokens per second for one stream of code and 262 across eight streams.</p>
+<p><b>At 4 bits, apex-flash-1 behaves like its base model on every test we could run.</b> General quality, tool use, 4,710 security questions and 238 capture-the-flag tasks all came out level. The pooled capture-the-flag interval, −5.3 to +4.9 points, is narrow enough to exclude a gain the size of the one Cantina reports. Either the 4-bit conversion erases a fine-tune that small, or the gain shows only on tasks like Cantina's private ones. A build with wider experts is the test that separates the two.</p>
+<p><b>The serving setup moves results as much as the model does.</b> The same apex weights on two and on four Sparks disagreed on 297 security questions; apex and the base disagreed on 332. Any comparison of two models needs a measure of that noise beside it, or a difference within it will read as a finding.</p>
+<p><b>Compare item by item, and count the work.</b> Headline percentages hide which items changed; pairing by task, a sign test and intervals that resample whole tasks show whether a gap is real. A time limit is also not equal work when one model runs faster, so we report each result again with the faster model held to the slower one's token budget. The harnesses also count tokens differently: OpenCode reports reasoning apart from output, and a work ratio that leaves it out is wrong.</p>
+<p><b>The training harness gave no advantage.</b> apex was trained with Codex, and we expected it to do best there. It did no better under Codex than under Pi or OpenCode, which neither model was trained with.</p>
+<p><b>Agent benchmarks need a sandbox built for them.</b> Each attempt ran in its own network with no route out, and a challenge server that grew to 80 GB of memory showed why every container also needs a memory and process cap. Public benchmarks also age: they needed repairs to build today, and their write-ups may be in either model's training data.</p>
 
 <hr>
 
