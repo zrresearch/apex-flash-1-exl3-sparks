@@ -363,7 +363,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
     <caption>Table 7. Post-conversion steps.</caption>
   </table>
 </div>
-<p>The last two steps failed inside the recipe. The dtype step was given a path relative to the recipe folder inside a container that mounts only the job folder, and the layout checker was never copied into the job folder. Its reference, Mia's <code>GLM-5.3-Flash-EXL3-TR3-4bpw</code> repository, also now returns HTTP 401. We ran both by hand, checking the layout against Mia's <code>GLM-5.3-Flash-EXL3-4bpw-TensorFold</code> at <code>078455ff</code>, the checkpoint our three-Spark group already serves.</p>
+<p>The last two steps failed inside the recipe. The dtype step was given a path relative to the recipe folder inside a container that mounts only the job folder, and the layout checker was never copied into the job folder. The layout checker still pointed at Mia's <code>GLM-5.3-Flash-EXL3-TR3-4bpw</code>, a mirror of Brandon Music's <a href="https://huggingface.co/brandonmusic/GLM-5.3-Flash-tr3-4bpw">TR3 checkpoint</a> that Mia's recipe replaced on October 3 with its own <code>GLM-5.3-Flash-EXL3-4bpw-TensorFold</code> and has since withdrawn. We ran both steps by hand, checking the layout against that replacement at <code>078455ff</code>, the checkpoint our three-Spark group already serves.</p>
 
 <div class="tbl">
   <table>
