@@ -1,0 +1,114 @@
+diff --git a/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Easy] Unbreakable/Dockerfile b/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Easy] Unbreakable/Dockerfile
+index 69b7da6e..40cf4934 100644
+--- a/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Easy] Unbreakable/Dockerfile	
++++ b/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Easy] Unbreakable/Dockerfile	
+@@ -1,4 +1,5 @@
+ FROM python:3.11-slim-buster 
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN apt update
+ RUN apt install -y socat
+diff --git a/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Medium] Were Pickle Phreaks Revenge/Dockerfile b/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Medium] Were Pickle Phreaks Revenge/Dockerfile
+index 862716c6..b851dcee 100644
+--- a/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Medium] Were Pickle Phreaks Revenge/Dockerfile	
++++ b/benchmark/hackthebox/cyber-apocalypse-2024/misc/[Medium] Were Pickle Phreaks Revenge/Dockerfile	
+@@ -1,4 +1,5 @@
+ FROM python:3.8-slim-buster 
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN apt update
+ RUN apt install -y socat
+diff --git a/benchmark/hackthebox/cyber-apocalypse-2024/web/[Easy] Labyrinth Linguist/Dockerfile b/benchmark/hackthebox/cyber-apocalypse-2024/web/[Easy] Labyrinth Linguist/Dockerfile
+index 601a6d3c..022da5e1 100644
+--- a/benchmark/hackthebox/cyber-apocalypse-2024/web/[Easy] Labyrinth Linguist/Dockerfile	
++++ b/benchmark/hackthebox/cyber-apocalypse-2024/web/[Easy] Labyrinth Linguist/Dockerfile	
+@@ -1,4 +1,5 @@
+ FROM maven:3.8.5-openjdk-11-slim
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ # Install packages
+ RUN apt update && apt install -y --no-install-recommends supervisor
+diff --git a/benchmark/project-sekai-ctf/sekaictf-2022/crypto/ezmaze/challenge/Dockerfile b/benchmark/project-sekai-ctf/sekaictf-2022/crypto/ezmaze/challenge/Dockerfile
+index 2fb2f800..218d9c60 100644
+--- a/benchmark/project-sekai-ctf/sekaictf-2022/crypto/ezmaze/challenge/Dockerfile
++++ b/benchmark/project-sekai-ctf/sekaictf-2022/crypto/ezmaze/challenge/Dockerfile
+@@ -1,4 +1,5 @@
+ FROM python:3.9-slim-buster
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN apt-get update && \
+     apt-get install -y xinetd && \
+diff --git a/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/challenge/Dockerfile b/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/challenge/Dockerfile
+index cffa8b1b..625a74e9 100644
+--- a/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/challenge/Dockerfile
++++ b/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/challenge/Dockerfile
+@@ -1,4 +1,5 @@
+ FROM python:3.9-slim-buster
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN apt-get update && \
+     apt-get install -y lib32z1 xinetd && \
+diff --git a/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/metadata/solution/challenge/Dockerfile b/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/metadata/solution/challenge/Dockerfile
+index 88b2ae1c..d95ac14b 100644
+--- a/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/metadata/solution/challenge/Dockerfile
++++ b/benchmark/project-sekai-ctf/sekaictf-2022/crypto/failproof/metadata/solution/challenge/Dockerfile
+@@ -1,4 +1,5 @@
+ FROM python:3.9-slim-buster
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN apt-get update && \
+     apt-get install -y xinetd && \
+diff --git a/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisier-crc/challenge/Dockerfile b/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisier-crc/challenge/Dockerfile
+index 9fa5f565..d0fe2d90 100644
+--- a/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisier-crc/challenge/Dockerfile
++++ b/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisier-crc/challenge/Dockerfile
+@@ -1,4 +1,5 @@
+ FROM python:3.9-slim-buster
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN apt-get update -y && \
+     apt-get install -y xinetd && \
+diff --git a/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisy-crc/challenge/Dockerfile b/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisy-crc/challenge/Dockerfile
+index 178d87ee..c8588232 100644
+--- a/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisy-crc/challenge/Dockerfile
++++ b/benchmark/project-sekai-ctf/sekaictf-2023/crypto/noisy-crc/challenge/Dockerfile
+@@ -1,4 +1,5 @@
+ FROM python:3.9-slim-buster
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN apt-get update -y && \
+     apt-get install -y xinetd && \
+diff --git a/benchmark/project-sekai-ctf/sekaictf-2023/misc/just-another-pickle-jail/challenge/Dockerfile b/benchmark/project-sekai-ctf/sekaictf-2023/misc/just-another-pickle-jail/challenge/Dockerfile
+index 56cf8d16..a293bc02 100644
+--- a/benchmark/project-sekai-ctf/sekaictf-2023/misc/just-another-pickle-jail/challenge/Dockerfile
++++ b/benchmark/project-sekai-ctf/sekaictf-2023/misc/just-another-pickle-jail/challenge/Dockerfile
+@@ -1,11 +1,12 @@
++# ctf-harness: buster lines below point at archive.debian.org; buster-updates dropped (retired)
+ FROM python:3.11
++RUN if [ -f /etc/apt/sources.list ] && grep -qE "buster|bullseye" /etc/apt/sources.list /etc/os-release 2>/dev/null; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "/-updates/d" /etc/apt/sources.list; fi; if [ -f /etc/apt/sources.list.d/debian.sources ] && grep -qE "buster|bullseye" /etc/os-release; then sed -i -e "s|deb.debian.org|archive.debian.org|g" -e "s|security.debian.org|archive.debian.org|g" -e "s| [a-z]*-updates||" /etc/apt/sources.list.d/debian.sources; fi; true # ctf-harness: archived Debian
+ 
+ RUN dpkg --add-architecture amd64 && \
+     apt-get update && \
+     # Modify the sources list to include Debian repositories for amd64
+-    echo "deb [arch=amd64] http://deb.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list.d/amd64.list && \
+-    echo "deb [arch=amd64] http://deb.debian.org/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list.d/amd64.list && \
+-    echo "deb [arch=amd64] http://deb.debian.org/debian buster-updates main contrib non-free" >> /etc/apt/sources.list.d/amd64.list && \
++    echo "deb [arch=amd64] http://archive.debian.org/debian buster main contrib non-free" > /etc/apt/sources.list.d/amd64.list && \
++    echo "deb [arch=amd64] http://archive.debian.org/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list.d/amd64.list && \
+     apt-get update && \
+     apt-get install socat -y && \
+     # Install the amd64 version of libc6
+diff --git a/benchmark/project-sekai-ctf/sekaictf-2023/web/frog-waf/metadata/challenge/Dockerfile b/benchmark/project-sekai-ctf/sekaictf-2023/web/frog-waf/metadata/challenge/Dockerfile
+index 17470a64..2bf624fd 100644
+--- a/benchmark/project-sekai-ctf/sekaictf-2023/web/frog-waf/metadata/challenge/Dockerfile
++++ b/benchmark/project-sekai-ctf/sekaictf-2023/web/frog-waf/metadata/challenge/Dockerfile
+@@ -5,7 +5,8 @@ COPY --chown=gradle:gradle src/ /home/gradle/frogwaf/src/
+ WORKDIR /home/gradle/frogwaf
+ RUN gradle bootJar
+ 
+-FROM openjdk:11-slim
++# ctf-harness: openjdk:11-slim was removed from Docker Hub; same Java 11 from eclipse-temurin
++FROM eclipse-temurin:11-jre-jammy
+ 
+ RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+ 
