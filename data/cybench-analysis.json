@@ -91,5 +91,51 @@
    "attempts_base_only": 6,
    "attempt_mcnemar_p_naive": 0.791
   }
+ },
+ {
+  "harness": "opencode",
+  "tokens_per_45min": {
+   "apex": 47720,
+   "base": 33682.5
+  },
+  "work_ratio": 0.705836127409891,
+  "as run": {
+   "tasks": 40,
+   "attempts": 120,
+   "apex": "77/120 = 64.2%",
+   "base": "79/120 = 65.8%",
+   "diff_pts": -1.7,
+   "ci95_pts": [
+    -8.3,
+    5.0
+   ],
+   "tasks_apex_better": 4,
+   "tasks_base_better": 5,
+   "task_sign_p": 1.0,
+   "tasks_ever_solved_apex": 30,
+   "tasks_ever_solved_base": 29,
+   "attempts_apex_only": 7,
+   "attempts_base_only": 9,
+   "attempt_mcnemar_p_naive": 0.804
+  },
+  "equal work": {
+   "tasks": 40,
+   "attempts": 120,
+   "apex": "73/120 = 60.8%",
+   "base": "79/120 = 65.8%",
+   "diff_pts": -5.0,
+   "ci95_pts": [
+    -12.5,
+    1.7
+   ],
+   "tasks_apex_better": 3,
+   "tasks_base_better": 6,
+   "task_sign_p": 0.508,
+   "tasks_ever_solved_apex": 29,
+   "tasks_ever_solved_base": 29,
+   "attempts_apex_only": 6,
+   "attempts_base_only": 12,
+   "attempt_mcnemar_p_naive": 0.238
+  }
  }
 ]

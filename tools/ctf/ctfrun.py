@@ -469,6 +469,11 @@ def run_one(task_dir, model, endpoint, attempt, outdir, minutes=45, probe=None, 
             open(os.path.join(rundir, "stderr.txt"), "w").write(p.stderr)
         final, n_cmds, usage = {"codex": parse_codex, "pi": parse_pi, "opencode": parse_opencode}[harness](os.path.join(rundir, "events.jsonl"))
         ans = parse_answer(final)
+        ev_text = open(os.path.join(rundir, "events.jsonl")).read()
+        if harness == "opencode" and "lanes are busy" in ev_text and not ans:
+            # the server refused a request (all lanes busy) and OpenCode gave up: a setup failure, not a model
+            # failure, so the attempt is recorded as an error and runs again on resume
+            raise RuntimeError("model server busy (429); OpenCode stopped")
         res.update(answer=ans, solved=ans == flag, flag_seen=flag in open(os.path.join(rundir, "events.jsonl")).read(),
                    commands=n_cmds, usage=usage, final=final[-600:])
     except Exception as e:

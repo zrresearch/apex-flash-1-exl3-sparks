@@ -20,9 +20,13 @@ def load(path):
 
 
 def out_tokens(u):
+    # generated tokens. Pi and Codex count reasoning inside output; OpenCode reports it apart
+    # (its total = input + output + reasoning + cache reads/writes)
+    u = u or {}
     for k in ("output", "output_tokens"):
-        if k in (u or {}):
-            return u[k]
+        if k in u:
+            apart = "total" in u and u["total"] == sum(u.get(x, 0) for x in ("input", "output", "reasoning", "cache_read", "cache_write"))
+            return u[k] + (u.get("reasoning", 0) if apart else 0)
     return None
 
 
