@@ -161,6 +161,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
     <li><a href="#limitations">Limitations</a></li>
     <li><a href="#next">What comes next</a></li>
     <li><a href="#learned">What we learned</a></li>
+    <li><a href="#thanks">Acknowledgements</a></li>
     <li><a href="#appendix">Appendix: reproducing this work</a></li>
   </ol>
 </nav>
@@ -446,6 +447,10 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 
 <h3>How to compare two models</h3>
 <p>We also changed how we test. The same apex weights served on two and on four Sparks disagreed on nearly as many security questions as apex and the base did, so a comparison needs a measure of that noise beside it. We now compare item by item rather than by headline percentages, check that a time limit gives both models the same amount of work, and count each harness's tokens the same way. These rules are now the standard way we test every model we serve.</p>
+
+<h2 id="thanks">Acknowledgements</h2>
+<p>This work stands on other people's. <a href="https://huggingface.co/cantina-security/apex-flash-1">Cantina</a> released apex-flash-1 openly, with the numbers that set our question. <a href="https://huggingface.co/Mia-AiLab">Mia's AI Lab</a> published the checkpoint layout we matched and <a href="https://github.com/MiaAI-Lab/GLM-5.3-Flash-EXL3-2x-DGX-Sparks-TensorFold">the serving recipe</a> we ran on every group, including the four-node branch. <a href="https://github.com/WamboDNS/apex-flash-1-EXL3-4bpw">WamboDNS</a> wrote the conversion recipe we followed and published a build to check ours against, as did <a href="https://huggingface.co/SloptimistPrime/apex-flash-1-EXL3-4bit-DGX-Spark">SloptimistPrime</a>. The <a href="https://github.com/ashhart/TensorFold">TensorFold</a> and <a href="https://github.com/turboderp-org/exllamav3">ExLlamaV3</a> projects and their contributors made a model this size runnable on GB10s at all, and Brandon Music's <a href="https://huggingface.co/brandonmusic/GLM-5.3-Flash-tr3-4bpw">TR3 checkpoint</a> came before the layout we used.</p>
+<p>The tests are the work of the authors of <a href="https://cybench.github.io">Cybench</a> and <a href="https://github.com/NYU-LLM-CTF/NYU_CTF_Bench">NYU CTF Bench</a>, of the <a href="https://huggingface.co/datasets/tihanyin/CyberMetric">CyberMetric</a>, <a href="https://huggingface.co/datasets/AI4Sec/cti-bench">CTIBench</a> and <a href="https://huggingface.co/datasets/zefang-liu/secqa">SecQA</a> question sets, and of the competitions those benchmarks draw on. The <a href="https://github.com/openai/codex">Codex</a>, <a href="https://pi.dev">Pi</a> and <a href="https://opencode.ai">OpenCode</a> teams built the agent harnesses we compared.</p>
 
 <hr>
 
