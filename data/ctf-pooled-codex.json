@@ -1,0 +1,13 @@
+{
+ "tasks": 238,
+ "apex": 55.5,
+ "base": 55.6,
+ "diff_pts": -0.1,
+ "ci95_pts": [
+  -5.3,
+  4.9
+ ],
+ "tasks_apex_better": 26,
+ "tasks_base_better": 24,
+ "task_sign_p": 0.888
+}

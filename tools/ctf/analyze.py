@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Cybench / NYU CTF results: apex vs base, per harness.
 
-  analyze.py <results root> [--harness codex,pi,...] [--boot 10000]
+  analyze.py <results root> [--harness codex,pi,...] [--boot 10000] [--ratio R]
 
 Reads <root>/<harness>-apex/results.jsonl and <root>/<harness>-base/results.jsonl. Reports
   - solve rates by attempt;
@@ -94,9 +94,11 @@ if __name__ == "__main__":
     boot = int(a[a.index("--boot") + 1]) if "--boot" in a else 10000
     res = [analyse(root, h, boot) for h in hs]
     # Codex logs no usage for attempts killed at the cap; borrow Pi's ratio, stated in the output
-    pi = next((r["work_ratio"] for r in res if r["harness"] == "pi" and r["work_ratio"]), None)
+    # (--ratio R: a ratio measured elsewhere, e.g. Pi's on Cybench for NYU, which ran Codex only)
+    given = float(a[a.index("--ratio") + 1]) if "--ratio" in a else None
+    pi = given or next((r["work_ratio"] for r in res if r["harness"] == "pi" and r["work_ratio"]), None)
     for i, r in enumerate(res):
         if r["work_ratio"] is None and pi:
             res[i] = analyse(root, r["harness"], boot, cutoff_ratio=pi)
-            res[i]["work_ratio_from"] = "pi"
+            res[i]["work_ratio_from"] = "given (--ratio)" if given else "pi"
     print(json.dumps(res, indent=1))

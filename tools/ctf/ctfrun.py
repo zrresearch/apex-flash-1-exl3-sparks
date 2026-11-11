@@ -194,7 +194,8 @@ def nyu_override(compose_file, net, rundir=None):
         if "network_mode" in spec:
             raise RuntimeError(f"{svc} uses network_mode")
         lines += [f"  {json.dumps(svc)}:", "    ports: !reset []", "    container_name: !reset null",
-                  "    privileged: false", "    restart: on-failure"]
+                  "    privileged: false", "    restart: on-failure",
+                  "    mem_limit: 8g", "    pids_limit: 4096"]  # one runaway service took 80 GB of the host
         sec = []
         for o in spec.get("security_opt") or []:
             if o.startswith("seccomp=") and rundir:

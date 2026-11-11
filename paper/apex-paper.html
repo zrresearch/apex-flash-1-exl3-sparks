@@ -148,7 +148,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 
 <p>Cantina's <a href="https://huggingface.co/cantina-security/apex-flash-1">apex-flash-1</a> is a 321-billion-parameter reinforcement-learning post-train of GLM-5.3-Flash for security investigations. In BF16 it is 642.7 GB, larger than the 512 GB of memory in our biggest group of DGX Sparks. We built our own 4-bit EXL3 version of it on a single Spark, in the same layout as the <a href="https://huggingface.co/Mia-AiLab/GLM-5.3-Flash-EXL3-4bpw-TensorFold">GLM-5.3-Flash checkpoints</a> <a href="https://huggingface.co/Mia-AiLab">Mia's AI Lab</a> publishes for <a href="https://github.com/ashhart/TensorFold">TensorFold</a>, and served it with <a href="https://github.com/MiaAI-Lab/GLM-5.3-Flash-EXL3-2x-DGX-Sparks-TensorFold">their recipe</a> on groups of two, three and four Sparks.</p>
 <p>The conversion took 16 h 45 min on one GB10 and produced a 175.7 GB checkpoint whose 150,226 tensor names and dtypes match Mia's reference exactly. It loads unchanged in TensorFold. On four Sparks connected through a QSFP switch, a configuration Mia's four-node branch had not been run on, it decodes a single stream at 120 tokens per second on code and 70 on prose, and 262 tokens per second across eight streams. A 256K-token prompt reaches its first token in 103 seconds.</p>
-<p>On a general quality suite of 797 items, the build is indistinguishable from the base GLM-5.3-Flash quantized and served the same way, and it scores 100 on tool use. On 4,710 security-knowledge questions the two also tie, 87.3% against 87.7%, and on 40 Cybench capture-the-flag tasks, three attempts each through three agent harnesses, apex solves 236 of 360 attempts against the base's 232, a difference within chance. Data, logs and configuration are in the <a href="https://github.com/zrresearch/apex-flash-1-exl3-sparks">research repository</a>.</p>
+<p>On a general quality suite of 797 items, the build is indistinguishable from the base GLM-5.3-Flash quantized and served the same way, and it scores 100 on tool use. On 4,710 security-knowledge questions the two also tie, 87.3% against 87.7%, and on 40 Cybench capture-the-flag tasks, three attempts each through three agent harnesses, apex solves 236 of 360 attempts against the base's 232. On the 198 tasks of NYU CTF Bench, one attempt each through Codex, apex solves 106 and the base 107. Both differences are within chance; pooled over all 238 tasks under Codex, the difference is −0.1 points, with a 95% interval of −5.3 to +4.9. Data, logs and configuration are in the <a href="https://github.com/zrresearch/apex-flash-1-exl3-sparks">research repository</a>.</p>
 
 <nav class="toc" aria-label="Contents">
   <p>Contents</p>
@@ -276,7 +276,29 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 
 <p>No harness separates the models. Under Codex apex solved 78 of 120 attempts and the base 76; under Pi, 81 and 77; under OpenCode, 77 and 79. Counted by task, apex did better on 8 tasks and the base on 5 under Codex (sign test p = 0.58), 5 against 3 under Pi (p = 0.73) and 4 against 5 under OpenCode (p = 1.0). Both solved about 30 of the 40 tasks at least once, and about 30% of attempts ran to the time limit for each model. With the nine attempts per task pooled, apex did better on 10 tasks and the base on 5 (p = 0.30). Codex, the harness apex was trained with, does not favour it more than the other two.</p>
 <p>A time limit is not quite equal work. apex runs on four Sparks and the base on three, so apex generates more in 45 minutes: a median of 42,038 output tokens against 34,624 in the Pi attempts that reached the limit. Codex records usage only when an attempt ends, so it borrows Pi's ratio of 0.82. Counting an apex solve only if it came within 45 × 0.82 minutes, about 37 minutes, moves the difference to −0.8 points under Codex and +1.7 under Pi. OpenCode's capped attempts give a lower ratio, 47,720 tokens against 33,683, or 0.71, and a cut at 32 minutes moves its difference to −5.0 points, still within chance.</p>
-<p>On these 40 tasks the 4-bit apex and the 4-bit base are indistinguishable. The intervals still allow a difference of up to about 10 points either way, so a gain the size of Cantina's reported one, about 7 points, can be neither confirmed nor ruled out. Pooling the three harnesses narrows the interval to about 5 points either way, and the difference stays near zero. NYU CTF Bench's 198 tasks follow, one attempt each through Codex.</p>
+<p>On these 40 tasks the 4-bit apex and the 4-bit base are indistinguishable. The intervals still allow a difference of up to about 10 points either way, so a gain the size of Cantina's reported one, about 7 points, can be neither confirmed nor ruled out. Pooling the three harnesses narrows the interval to about 5 points either way, and the difference stays near zero.</p>
+
+<h3>NYU CTF Bench</h3>
+<p>To narrow the interval further we ran <a href="https://github.com/NYU-LLM-CTF/NYU_CTF_Bench">NYU CTF Bench</a>, 200 challenges from CSAW qualifiers and finals, 2017 to 2023, across the same six categories. Two are left out: one needs a privileged container that rewrites the host's firewall, and one has a handout that is only a link to an outside download. That leaves 198 tasks, one attempt each per model through Codex, with the same isolation, 45-minute limit and scoring as Cybench. Each challenge service is also capped at 8 GB of memory and 4,096 processes.</p>
+
+<div class="tbl">
+  <table>
+    <thead><tr><th>Category</th><th class="n">Tasks</th><th class="n">apex-flash-1</th><th class="n">GLM-5.3-Flash</th></tr></thead>
+    <tbody>
+      <tr><td>Cryptography</td><td class="n">52</td><td class="n">24</td><td class="n">26</td></tr>
+      <tr><td>Reverse engineering</td><td class="n">51</td><td class="n">34</td><td class="n">34</td></tr>
+      <tr><td>Binary exploitation</td><td class="n">39</td><td class="n">15</td><td class="n">16</td></tr>
+      <tr><td>Miscellaneous</td><td class="n">24</td><td class="n">18</td><td class="n">16</td></tr>
+      <tr><td>Web</td><td class="n">18</td><td class="n">7</td><td class="n">8</td></tr>
+      <tr><td>Forensics</td><td class="n">14</td><td class="n">8</td><td class="n">7</td></tr>
+      <tr class="total"><td>All</td><td class="n">198</td><td class="n">106</td><td class="n">107</td></tr>
+    </tbody>
+    <caption>Table 5. NYU CTF Bench, unguided, one attempt per task and model, Codex harness. Tasks solved.</caption>
+  </table>
+</div>
+
+<p>The result is a tie: 53.5% against 54.0%, a difference of −0.5 points (−6.6 to +5.6). apex solved 18 tasks the base did not, and the base 19 that apex did not (sign test p = 1.0). No category separates them. Attempts that reached the time limit were 71 for apex and 64 for the base. Codex records no usage for those, so the equal-work cut uses the ratio measured on Cybench, 0.82; it moves the difference to −3.0 points (−9.1 to +3.0, p = 0.42).</p>
+<p>Taking both benchmarks together under Codex, with each task scored by the share of its attempts solved, apex scores 55.5% and the base 55.6% over 238 tasks, a difference of −0.1 points (−5.3 to +4.9). apex did better on 26 tasks and the base on 24 (p = 0.89). A gain the size of Cantina's, about 7 points, would fall outside this interval, so on public capture-the-flag tasks our 4-bit apex does not reproduce it. Whether the full-precision model does, or whether Cantina's private tasks measure something these do not, we cannot tell from here.</p>
 
 <h2 id="build">Building the checkpoint</h2>
 
@@ -290,7 +312,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>FP8, third-party</td><td class="n">~321 GB</td><td>no</td><td>too tight</td><td>on paper; no Spark recipe</td></tr>
       <tr><td>EXL3, 4-bit experts</td><td class="n">~176 GB</td><td>yes</td><td>yes</td><td>yes</td></tr>
     </tbody>
-    <caption>Table 5. Which form of apex-flash-1 fits which group, before memory for the system and the KV cache.</caption>
+    <caption>Table 6. Which form of apex-flash-1 fits which group, before memory for the system and the KV cache.</caption>
   </table>
 </div>
 <p>EXL3 is <a href="https://github.com/turboderp-org/exllamav3">ExLlamaV3</a>'s trellis-coded quantization format, and <a href="https://github.com/ashhart/TensorFold">TensorFold</a> is an inference server that runs EXL3 checkpoints of GLM-5.3-Flash across GB10 nodes. Mia's checkpoint quantizes only the 288 routed experts in each layer, to 4 bits with the <code>mcg</code> codebook, and keeps attention, shared experts, dense layers, embeddings, the output head and the vision tower in BF16. apex-flash-1 shares GLM-5.3-Flash's architecture, so a checkpoint in the same layout should load in Mia's recipe without code changes. That is the premise we tested.</p>
@@ -338,7 +360,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td><code>fix_dtypes.py</code></td><td>Reconcile dtypes against a reference map</td><td>run by hand; every dtype already matched</td></tr>
       <tr><td><code>check_layout.py</code></td><td>Compare every tensor name and dtype with a reference checkpoint</td><td>run by hand; pass</td></tr>
     </tbody>
-    <caption>Table 6. Post-conversion steps.</caption>
+    <caption>Table 7. Post-conversion steps.</caption>
   </table>
 </div>
 <p>The last two steps failed inside the recipe. The dtype step was given a path relative to the recipe folder inside a container that mounts only the job folder, and the layout checker was never copied into the job folder. Its reference, Mia's <code>GLM-5.3-Flash-EXL3-TR3-4bpw</code> repository, also now returns HTTP 401. We ran both by hand, checking the layout against Mia's <code>GLM-5.3-Flash-EXL3-4bpw-TensorFold</code> at <code>078455ff</code>, the checkpoint our three-Spark group already serves.</p>
@@ -351,7 +373,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>SloptimistPrime, EXL3-4bit-DGX-Spark</td><td class="n">175,642,473,288</td><td class="n">150,226</td><td class="n">23</td></tr>
       <tr><td>wambosec, EXL3-4bpw (recipe author)</td><td class="n">175,725,226,520</td><td class="n">150,226</td><td class="n">23</td></tr>
     </tbody>
-    <caption>Table 7. Our checkpoint beside two published builds of the same model.</caption>
+    <caption>Table 8. Our checkpoint beside two published builds of the same model.</caption>
   </table>
 </div>
 <p>All 150,226 tensor names and their dtypes match the reference, and all 46 layers are present. Our build is 83 MB from SloptimistPrime's, which used the same recipe and calibration. Against the recipe author's own upload it matches file for file: every one of the 23 shards has the same size, and the index, the quantization config and the final shard, which holds the multi-token-prediction layer, are byte-identical. The other 22 shards differ in content but not in size, so the two builds share every bit allocation and differ only in the quantized values; we have not traced where the difference begins.</p>
@@ -366,7 +388,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>ring</td><td class="n">3</td><td class="n">384 GB</td><td>triangle of direct cables, MTU 9000</td><td class="n">8</td><td class="n">67.8 GiB</td></tr>
       <tr><td>switch-dell</td><td class="n">4</td><td class="n">512 GB</td><td>MikroTik CRS804 switch, PFC lossless, MTU 9000</td><td class="n">8</td><td class="n">50.2 GiB</td></tr>
     </tbody>
-    <caption>Table 8. The three groups and how apex-flash-1 runs on each. Startup memory is TensorFold's estimate of weights and fixed buffers on the head.</caption>
+    <caption>Table 9. The three groups and how apex-flash-1 runs on each. Startup memory is TensorFold's estimate of weights and fixed buffers on the head.</caption>
   </table>
 </div>
 
@@ -384,7 +406,7 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
 <p><b>The fine-tune may not survive 4-bit.</b> The recipe's author measured apex's routed experts at about 8×10⁻⁵ relative distance from the base model, far below the 6×10⁻³ to 3×10⁻² output error that 4-bit quantization adds here. A low-rank, coherent change can survive noise larger than itself, so this does not settle the question, but it is why the comparison with the base model matters.</p>
 <p><b>Fabric confounds group size.</b> Each group size ran on a different network, so Table 1 mixes the effect of more Sparks with the effect of the fabric.</p>
 <p><b>Multiple-choice tests measure recall.</b> The security quiz tests what a model knows, not whether it can carry out an investigation, which is the skill Cantina trained. Its answers also depend on the thinking budget: with an 8,192-token limit, 11–12% of answers were cut off before a letter.</p>
-<p><b>Forty tasks is a small sample.</b> With three attempts at each of 40 Cybench tasks, only a large difference in solve rate between the models will be distinguishable from chance. Cybench's tasks are also public and their write-ups were published in 2023 and 2024, so either model may have seen solutions during training.</p>
+<p><b>Public tasks.</b> Cybench's and NYU CTF Bench's tasks are public, and write-ups for most were published between 2017 and 2024, so either model may have seen solutions during training. That would affect both models alike, but it could hide a gain that shows only on unseen problems, which is what Cantina's held-out tasks measure.</p>
 <p><b>Single runs.</b> Each speed benchmark ran once per configuration. Differences of a few percent in speed, or one or two items in a quality category, are within run-to-run variation.</p>
 
 <h2 id="next">What comes next</h2>
@@ -399,10 +421,10 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
       <tr><td>Cybench capture the flag, 40 tasks × 3, Codex harness</td><td>base GLM-5.3-Flash</td><td>done, no difference</td></tr>
       <tr><td>Cybench capture the flag, 40 tasks × 3, Pi harness</td><td>base GLM-5.3-Flash</td><td>done, no difference</td></tr>
       <tr><td>Cybench capture the flag, 40 tasks × 3, OpenCode harness</td><td>base GLM-5.3-Flash</td><td>done, no difference</td></tr>
-      <tr><td>NYU CTF Bench, 198 tasks × 1, Codex harness</td><td>base GLM-5.3-Flash</td><td>running</td></tr>
+      <tr><td>NYU CTF Bench, 198 tasks × 1, Codex harness</td><td>base GLM-5.3-Flash</td><td>done, no difference</td></tr>
       <tr><td>Higher expert bitrate, 5–6 bits</td><td>this build</td><td>if apex shows no security gain</td></tr>
     </tbody>
-    <caption>Table 9. Measurements done and planned.</caption>
+    <caption>Table 10. Measurements done and planned.</caption>
   </table>
 </div>
 

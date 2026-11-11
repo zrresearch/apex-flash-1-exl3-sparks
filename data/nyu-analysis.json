@@ -1,0 +1,49 @@
+[
+ {
+  "harness": "nyu-codex",
+  "tokens_per_45min": {
+   "apex": null,
+   "base": null
+  },
+  "work_ratio": 0.824,
+  "as run": {
+   "tasks": 198,
+   "attempts": 198,
+   "apex": "106/198 = 53.5%",
+   "base": "107/198 = 54.0%",
+   "diff_pts": -0.5,
+   "ci95_pts": [
+    -6.6,
+    5.6
+   ],
+   "tasks_apex_better": 18,
+   "tasks_base_better": 19,
+   "task_sign_p": 1.0,
+   "tasks_ever_solved_apex": 106,
+   "tasks_ever_solved_base": 107,
+   "attempts_apex_only": 18,
+   "attempts_base_only": 19,
+   "attempt_mcnemar_p_naive": 1.0
+  },
+  "equal work": {
+   "tasks": 198,
+   "attempts": 198,
+   "apex": "101/198 = 51.0%",
+   "base": "107/198 = 54.0%",
+   "diff_pts": -3.0,
+   "ci95_pts": [
+    -9.1,
+    3.0
+   ],
+   "tasks_apex_better": 16,
+   "tasks_base_better": 22,
+   "task_sign_p": 0.418,
+   "tasks_ever_solved_apex": 101,
+   "tasks_ever_solved_base": 107,
+   "attempts_apex_only": 16,
+   "attempts_base_only": 22,
+   "attempt_mcnemar_p_naive": 0.418
+  },
+  "work_ratio_from": "given (--ratio)"
+ }
+]
