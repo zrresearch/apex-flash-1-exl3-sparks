@@ -332,12 +332,12 @@ footer { font-family: var(--f-sans); font-size: 13px; color: var(--ink-2); }
     <tbody>
       <tr><td>This work</td><td class="n">175,725,226,520</td><td class="n">150,226</td><td class="n">23</td></tr>
       <tr><td>SloptimistPrime, EXL3-4bit-DGX-Spark</td><td class="n">175,642,473,288</td><td class="n">150,226</td><td class="n">23</td></tr>
-      <tr><td>wambosec, EXL3-4bpw (recipe author)</td><td class="n">~167 GB</td><td class="n">150,226</td><td class="n">23</td></tr>
+      <tr><td>wambosec, EXL3-4bpw (recipe author)</td><td class="n">175,725,226,520</td><td class="n">150,226</td><td class="n">23</td></tr>
     </tbody>
     <caption>Table 6. Our checkpoint beside two published builds of the same model.</caption>
   </table>
 </div>
-<p>All 150,226 tensor names and their dtypes match the reference, and all 46 layers are present. Our build is 83 MB from SloptimistPrime's, which used the same recipe and calibration.</p>
+<p>All 150,226 tensor names and their dtypes match the reference, and all 46 layers are present. Our build is 83 MB from SloptimistPrime's, which used the same recipe and calibration. Against the recipe author's own upload it matches file for file: every one of the 23 shards has the same size, and the index, the quantization config and the final shard, which holds the multi-token-prediction layer, are byte-identical. The other 22 shards differ in content but not in size, so the two builds share every bit allocation and differ only in the quantized values; we have not traced where the difference begins.</p>
 
 <h2 id="serving">Serving it</h2>
 <p>We serve with <a href="https://github.com/MiaAI-Lab/GLM-5.3-Flash-EXL3-2x-DGX-Sparks-TensorFold">Mia's TensorFold recipe</a> for GLM-5.3-Flash, at the commit our three-Spark group already runs. The recipe finds checkpoints by Hugging Face repository id, so we installed the build into each head's cache under a local id and pinned revision. TensorFold accepted it as GLM-5.3-Flash. Every group uses the recipe's defaults: FP8 KV cache, DFlash2 speculative drafts, and dense layers quantized to 4 bits at load time, which is also how the base model runs, so comparisons stay like for like.</p>
