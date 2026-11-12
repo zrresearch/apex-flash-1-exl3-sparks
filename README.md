@@ -58,5 +58,7 @@ The checkpoint itself (175.7 GB) is not in this repository.
 
 ## Licenses
 
-apex-flash-1 and the converted weights are MIT (Z.AI and Cantina). The DFlash2 drafter is CC BY-NC-ND 4.0. Logs and
-data here are operator's own.
+The code, logs and data in this repository are MIT-licensed (see `LICENSE`). Third-party material keeps its own
+license: apex-flash-1 and the converted weights are MIT (Z.AI and Cantina) and are not included here; the DFlash2
+drafter is CC BY-NC-ND 4.0; the patches to Cybench and its tasks follow those projects' licenses; and the benchmark
+question sets (CyberMetric, CTIBench, SecQA) are not redistributed, only our per-question results.
