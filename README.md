@@ -4,8 +4,9 @@ Building a 4-bit EXL3 quantization of
 [cantina-security/apex-flash-1](https://huggingface.co/cantina-security/apex-flash-1) (a 321B post-train of
 GLM-5.3-Flash) on one DGX Spark, and serving it with Mia's AI Lab's TensorFold recipe across 2, 3 and 4 GB10 nodes.
 
-The write-up is `paper/apex-paper.html`, a self-contained page (open it in a browser). This repository holds the
-data and configuration behind it.
+The write-up is published at
+[zrresearch.org/research/apex-flash-on-four-sparks](https://www.zrresearch.org/research/apex-flash-on-four-sparks).
+This repository holds the data, logs, tools and configuration behind it.
 
 ## Status
 
@@ -14,17 +15,18 @@ data and configuration behind it.
 | Source download (BF16, 642.7 GB @ `28c647a6`) | done, checksums verified |
 | Conversion (EXL3 4 bpw, mcg, routed experts only) | done, 16 h 45 min on one Spark |
 | Layout check against Mia's TensorFold checkpoint | pass, 150,226 tensors, dtypes match |
-| Serving, 2 nodes | live: TP=2, 4 streams, 1M window, vision off |
-| Serving, 3 nodes | live: TP=3, 8 streams, 1M window, vision off |
-| Serving, 4 nodes (switch, Mia `tp4` branch) | live: TP=4, 8 streams, 1M window, vision off; NCCL bootstrap on the fabric |
+| Serving, 2 nodes | done: TP=2, 4 streams, 1M window, vision off |
+| Serving, 3 nodes | done: TP=3, 8 streams, 1M window, vision off |
+| Serving, 4 nodes (switch, Mia `tp4` branch) | done: TP=4, 8 streams, 1M window, vision off; NCCL bootstrap on the fabric |
 | Speed and quality benchmarks | 2, 3 and 4 nodes done; base GLM-5.3-Flash compared (no difference on the general suite) |
-| Security-specific evaluation | to design |
+| Security knowledge, 4,710 questions | done: 87.3% vs base 87.7%, no difference |
+| Cybench, 40 tasks x 3, Codex / Pi / OpenCode | done: 236 vs 232 of 360, no difference |
+| NYU CTF Bench, 198 tasks x 1, Codex | done: 106 vs 107, no difference; pooled with Cybench -0.1 pts (-5.3 to +4.9) |
 
 ## Layout
 
 | Path | Contents |
 |---|---|
-| `paper/apex-paper.html` | The paper |
 | `data/conversion-layers.csv` | Per-layer converter stats: bpw, rfn, cos, SQNR, seconds, host memory (46 rows) |
 | `data/conversion-experts.csv` | Per-projection stats for every quantized expert: bpw, proxy error, g_sc, seconds (37,152 rows) |
 | `logs/download.log` | Library download log |
@@ -36,7 +38,11 @@ data and configuration behind it.
 | `config/conversion/output-config.json` | The built checkpoint's `config.json`, with its quantization scope declaration |
 | `config/serving-2x/` | Settings, launcher wrapper and local `start.sh` patch for the two-node run |
 | `provenance/` | Download script, checksum verification, library index records |
-| `benchmarks/` | Benchmark exports, added as runs complete |
+| `benchmarks/` | Speed and quality benchmark exports |
+| `data/security-quiz/` | Per-question results of the security knowledge quiz (ids, answers, scores; no question text) |
+| `data/cybench/`, `data/nyu/` | Per-attempt capture-the-flag results per model and harness |
+| `data/*-analysis.json`, `data/ctf-pooled-codex.json` | Per-task comparisons: sign tests, bootstrap intervals, equal-work cut |
+| `tools/` | Quiz runner, CTF harness (isolation, repairs, analysis) and the scripts used along the way |
 
 ## Pinned inputs
 
